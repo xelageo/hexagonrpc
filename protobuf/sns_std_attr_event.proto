@@ -1,0 +1,43 @@
+/*
+ * Protocol Buffer for Sensor Attributes
+ *
+ * Copyright (C) 2022 Richard Acayan
+ *
+ * This file is part of sensh.
+ *
+ * Sensh is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+syntax = "proto2";
+
+message sns_std_attr_value_data {
+	optional unksym_attr_value_array subtype = 1;
+	optional string str = 2; // note that this is null-terminated
+	optional float flt = 3;
+	optional fixed64 sint = 4;
+	optional bool boolean = 5;
+}
+
+message unksym_attr_value_array {
+	repeated sns_std_attr_value_data values = 1;
+}
+
+message sns_std_attr {
+	required int32 attr_id = 1;
+	required unksym_attr_value_array value = 2;
+}
+
+message sns_std_attr_event {
+	repeated sns_std_attr attrs = 1;
+}

@@ -1,0 +1,35 @@
+/*
+ * Outer Protocol Buffer for Sensor Events
+ *
+ * Copyright (C) 2022 Richard Acayan
+ *
+ * This file is part of sensh.
+ *
+ * Sensh is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+syntax = "proto2";
+
+import "sns_std_suid.proto";
+
+message sns_client_event_msg_sns_client_event {
+	required fixed32 msg_id = 1;
+	required fixed64 timestamp = 2; // Increments at a 19.2 MHz rate
+	required bytes payload = 3;
+}
+
+message sns_client_event_msg {
+	required sns_std_suid suid = 1;
+	repeated sns_client_event_msg_sns_client_event events = 2;
+}
