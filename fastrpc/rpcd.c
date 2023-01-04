@@ -20,9 +20,12 @@
  */
 
 #include <errno.h>
+#include <fcntl.h>
+#include <misc/fastrpc.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/ioctl.h>
 
 #include "aee_error.h"
 #include "fastrpc.h"
@@ -64,8 +67,41 @@ static void remotectl_err(const char *err)
 int main()
 {
 	struct fastrpc_context *ctx;
+	struct fastrpc_init_create_static create;
+	uint32_t rctx, handle, sc;
+	uint32_t inbufs_len;
+	char inbufs[256];
+	char outbuf[256];
+	int fd;
+	int ret;
 
-	remotectl_open(-1, "adsp_default_listener", &ctx, remotectl_err);
+	fd = open("/dev/fastrpc-adsp", O_RDWR);
+	if (fd == -1) {
+		fprintf(stderr, "Could not open /dev/fastrpc-adsp: %s\n", strerror(errno));
+		return 1;
+	}
+
+	create.namelen = sizeof("audiopd");
+	create.memlen = 1048576;
+	create.name = (__u64) "audiopd";
+	ret = ioctl(fd, FASTRPC_IOCTL_INIT_CREATE_STATIC, &create);
+	if (ret) {
+		printf("Could not ioctl /dev/fastrpc-adsp: %s\n", strerror(errno));
+		goto err_close_dev;
+	}
+
+	remotectl_open(fd, "adsp_default_listener", &ctx, remotectl_err);
 	printf("{ .fd = %u, .handle = %u, }\n", ctx->fd, ctx->handle);
 	free(ctx);
+
+	close(fd);
+
+	return 0;
+
+err_close_handle:
+	remotectl_close(ctx, remotectl_err);
+
+err_close_dev:
+	close(fd);
+	return 1;
 }
