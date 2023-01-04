@@ -53,6 +53,7 @@ died.
 The following sources were used as reference:
 
  - [https://android.googlesource.com/platform/system/chre](https://android.googlesource.com/platform/system/chre)
+ - [https://android.googlesource.com/platform/external/fastrpc](https://android.googlesource.com/platform/external/fastrpc)
  - [https://github.com/calebccff/sensordaemon-re](https://github.com/calebccff/sensordaemon-re)
  - [https://gitlab.freedesktop.org/mobile-broadband/libqmi/-/merge\_requests/346](https://gitlab.freedesktop.org/mobile-broadband/libqmi/-/merge_requests/346)
  - [https://git.linaro.org/landing-teams/working/qualcomm/fastrpc.git](https://git.linaro.org/landing-teams/working/qualcomm/fastrpc.git)
