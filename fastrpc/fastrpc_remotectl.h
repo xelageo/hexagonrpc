@@ -36,6 +36,7 @@
 	}
 
 DEFINE_REMOTE_PROCEDURE(0, remotectl_open, 0, 1, 2, 1);
+DEFINE_REMOTE_PROCEDURE(0, remotectl_close, 1, 0, 1, 1);
 
 #undef DEFINE_REMOTE_PROCEDURE
 
