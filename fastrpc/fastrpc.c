@@ -199,12 +199,12 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 	for (i = 0; i < def->in_nums; i++)
 		inbuf[i] = va_arg(arg_list, uint32_t);
 
-	for (i = 1; i < in_count; i++) {
+	for (i = 0; i < def->in_bufs; i++) {
 		size = va_arg(arg_list, uint32_t);
 
-		args[i].ptr = (__u64) va_arg(arg_list, void *);
-		args[i].length = size;
-		args[i].fd = -1;
+		args[i + 1].ptr = (__u64) va_arg(arg_list, void *);
+		args[i + 1].length = size;
+		args[i + 1].fd = -1;
 
 		inbuf[def->in_nums + i] = size;
 	}
