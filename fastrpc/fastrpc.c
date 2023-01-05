@@ -50,10 +50,16 @@ static void allocate_first_inbuf(const struct fastrpc_function_def_interp1 *def,
 				 struct fastrpc_invoke_args *arg,
 				 uint32_t **inbuf)
 {
-	arg->length = sizeof(uint32_t) * (def->in_nums
-					+ def->in_bufs
-					+ def->out_bufs);
-	arg->ptr = (__u64) (*inbuf = malloc(arg->length));
+	uint32_t *buf;
+	size_t len;
+
+	len = sizeof(uint32_t) * (def->in_nums + def->in_bufs + def->out_bufs);
+	buf = malloc(len);
+
+	*inbuf = buf;
+
+	arg->ptr = (__u64) buf;
+	arg->length = len;
 	arg->fd = -1;
 }
 
@@ -61,8 +67,16 @@ static void allocate_first_outbuf(const struct fastrpc_function_def_interp1 *def
 				  struct fastrpc_invoke_args *arg,
 				  uint32_t **outbuf)
 {
-	arg->length = sizeof(uint32_t) * (def->out_nums + def->out_bufs);
-	arg->ptr = (__u64) (*outbuf = malloc(arg->length));
+	uint32_t *buf;
+	size_t len;
+
+	len = sizeof(uint32_t) * (def->out_nums + def->out_bufs);
+	buf = malloc(len);
+
+	*outbuf = buf;
+
+	arg->ptr = (__u64) buf;
+	arg->length = len;
 	arg->fd = -1;
 }
 
@@ -92,6 +106,7 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
 			    va_list peek)
 {
 	int i;
+	int size;
 
 	allocate_first_outbuf(def, args, outbuf);
 
@@ -99,10 +114,14 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
 		va_arg(peek, uint32_t *);
 
 	for (i = 0; i < def->out_bufs; i++) {
-		inbuf[i] = args[i + 1].length = va_arg(peek, uint32_t);
+		size = va_arg(peek, uint32_t);
 		va_arg(peek, uint32_t *);
+
 		args[i + 1].ptr = (__u64) va_arg(peek, void *);
+		args[i + 1].length = size;
 		args[i + 1].fd = -1;
+
+		inbuf[i] = size;
 	}
 }
 
@@ -162,6 +181,7 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 	uint32_t *outbuf;
 	uint8_t in_count;
 	uint8_t out_count;
+	uint32_t size;
 	uint8_t i;
 	int ret;
 
@@ -182,10 +202,13 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 		inbuf[i] = va_arg(arg_list, uint32_t);
 
 	for (i = 1; i < in_count; i++) {
-		args[i].length = inbuf[def->in_nums + i]
-				   = va_arg(arg_list, uint32_t);
+		size = va_arg(arg_list, uint32_t);
+
 		args[i].ptr = (__u64) va_arg(arg_list, void *);
+		args[i].length = size;
 		args[i].fd = -1;
+
+		inbuf[def->in_nums + i] = size;
 	}
 
 	va_copy(peek, arg_list);
