@@ -54,7 +54,11 @@ static void allocate_first_inbuf(const struct fastrpc_function_def_interp1 *def,
 	size_t len;
 
 	len = sizeof(uint32_t) * (def->in_nums + def->in_bufs + def->out_bufs);
-	buf = malloc(len);
+
+	if (len)
+		buf = malloc(len);
+	else
+		buf = NULL;
 
 	*inbuf = buf;
 
@@ -71,7 +75,11 @@ static void allocate_first_outbuf(const struct fastrpc_function_def_interp1 *def
 	size_t len;
 
 	len = sizeof(uint32_t) * (def->out_nums + def->out_bufs);
-	buf = malloc(len);
+
+	if (len)
+		buf = malloc(len);
+	else
+		buf = NULL;
 
 	*outbuf = buf;
 
@@ -192,7 +200,10 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 	in_count = io_side_count(def->in_nums + def->out_bufs, def->in_bufs);
 	out_count = io_side_count(def->out_nums, def->out_bufs);
 
-	args = malloc(sizeof(*args) * (in_count + out_count));
+	if (in_count || out_count)
+		args = malloc(sizeof(*args) * (in_count + out_count));
+	else
+		args = NULL;
 
 	allocate_first_inbuf(def, args, &inbuf);
 
@@ -233,9 +244,14 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 		va_arg(arg_list, void *);
 	}
 
-	free(args);
-	free(inbuf);
-	free(outbuf);
+	if (in_count || out_count)
+		free(args);
+
+	if (in_count)
+		free(inbuf);
+
+	if (out_count)
+		free(outbuf);
 
 	return ret;
 }
