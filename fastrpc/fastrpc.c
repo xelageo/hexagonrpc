@@ -45,9 +45,11 @@ static void allocate_first_inbuf(const struct fastrpc_function_def_interp2 *def,
 
 	*inbuf = buf;
 
-	arg->ptr = (__u64) buf;
-	arg->length = len;
-	arg->fd = -1;
+	if (buf != NULL) {
+		arg->ptr = (__u64) buf;
+		arg->length = len;
+		arg->fd = -1;
+	}
 }
 
 static void allocate_first_outbuf(const struct fastrpc_function_def_interp2 *def,
@@ -66,9 +68,11 @@ static void allocate_first_outbuf(const struct fastrpc_function_def_interp2 *def
 
 	*outbuf = buf;
 
-	arg->ptr = (__u64) buf;
-	arg->length = len;
-	arg->fd = -1;
+	if (buf != NULL) {
+		arg->ptr = (__u64) buf;
+		arg->length = len;
+		arg->fd = -1;
+	}
 }
 
 /*
