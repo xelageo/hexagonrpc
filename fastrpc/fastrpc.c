@@ -192,9 +192,7 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 	in_count = io_side_count(def->in_nums + def->out_bufs, def->in_bufs);
 	out_count = io_side_count(def->out_nums, def->out_bufs);
 
-	invoke.handle = handle;
-	invoke.sc = REMOTE_SCALARS_MAKE(def->msg_id, in_count, out_count);
-	invoke.args = (__u64) (args = malloc(sizeof(*args) * (in_count + out_count)));
+	args = malloc(sizeof(*args) * (in_count + out_count));
 
 	allocate_first_inbuf(def, args, &inbuf);
 
@@ -219,6 +217,10 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 			&outbuf,
 			peek);
 	va_end(peek);
+
+	invoke.handle = handle;
+	invoke.sc = REMOTE_SCALARS_MAKE(def->msg_id, in_count, out_count);
+	invoke.args = (__u64) args;
 
 	ret = ioctl(fd, FASTRPC_IOCTL_INVOKE, (__u64) &invoke);
 
