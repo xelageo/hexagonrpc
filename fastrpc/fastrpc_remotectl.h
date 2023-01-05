@@ -27,7 +27,7 @@
 #define REMOTECTL_HANDLE 0
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name, innums, inbufs, outnums, outbufs)	\
-	struct fastrpc_function_def_interp1 name##_def = {			\
+	struct fastrpc_function_def_interp2 name##_def = {			\
 		.msg_id = mid,							\
 		.in_nums = innums,						\
 		.in_bufs = inbufs,						\
@@ -35,7 +35,7 @@
 		.out_bufs = outbufs,						\
 	}
 
-DEFINE_REMOTE_PROCEDURE(0, remotectl_open, 0, 1, 1, 1);
+DEFINE_REMOTE_PROCEDURE(0, remotectl_open, 0, 1, 2, 1);
 
 #undef DEFINE_REMOTE_PROCEDURE
 

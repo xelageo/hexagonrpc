@@ -36,7 +36,8 @@ static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void
 	ret = fastrpc2(&remotectl_open_def, fd, REMOTECTL_HANDLE,
 		       strlen(name) + 1, name,
 		       &handle,
-		       256, &err_len, err);
+		       &err_len,
+		       256, err);
 	if (ret) {
 		err_cb(err, err_len);
 		return ret;

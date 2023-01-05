@@ -29,24 +29,7 @@
 
 #include "fastrpc.h"
 
-/*
- * This returns the amount of ioctl-level input buffers needed to pass a given
- * amount of 32-bit numbers and variable-size function-level buffers passed to
- * fastrpc().
- *
- * This doesn't just return the number of buffers because fastrpc() generates
- * the first ioctl-level buffer by itself. It should only provide it if needed,
- * otherwise the remote processor will get an unexpected argument.
- *
- * So, this inline function returns the number of function-level buffers, added
- * to the amount of first buffers (1), if any.
- */
-static inline uint8_t io_side_count(uint8_t nums, uint8_t bufs)
-{
-	return bufs + ((nums || bufs) && 1);
-}
-
-static void allocate_first_inbuf(const struct fastrpc_function_def_interp1 *def,
+static void allocate_first_inbuf(const struct fastrpc_function_def_interp2 *def,
 				 struct fastrpc_invoke_args *arg,
 				 uint32_t **inbuf)
 {
@@ -67,14 +50,14 @@ static void allocate_first_inbuf(const struct fastrpc_function_def_interp1 *def,
 	arg->fd = -1;
 }
 
-static void allocate_first_outbuf(const struct fastrpc_function_def_interp1 *def,
+static void allocate_first_outbuf(const struct fastrpc_function_def_interp2 *def,
 				  struct fastrpc_invoke_args *arg,
 				  uint32_t **outbuf)
 {
 	uint32_t *buf;
 	size_t len;
 
-	len = sizeof(uint32_t) * (def->out_nums + def->out_bufs);
+	len = sizeof(uint32_t) * def->out_nums;
 
 	if (len)
 		buf = malloc(len);
@@ -93,8 +76,7 @@ static void allocate_first_outbuf(const struct fastrpc_function_def_interp1 *def
  * receive output from the remote processor.
  *
  * First, it allocates a new first output buffer to contain the returned 32-bit
- * integers and returned function-level buffer sizes. This output buffer must be
- * freed after use.
+ * integers. This output buffer must be freed after use.
  *
  * With a peek at the output arguments, it populates the fastrpc_invoke_args
  * struct to give information about the buffer to the kernel, and adds an entry
@@ -106,7 +88,7 @@ static void allocate_first_outbuf(const struct fastrpc_function_def_interp1 *def
  * Calling va_arg() on a va_list after the return of a function that already
  * used it causes undefined behavior.
  */
-static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
+static void prepare_outbufs(const struct fastrpc_function_def_interp2 *def,
 			    struct fastrpc_invoke_args *args,
 			    uint8_t out_count,
 			    uint32_t *inbuf,
@@ -119,14 +101,13 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
 
 	allocate_first_outbuf(def, args, outbuf);
 
-	off = (def->out_nums || def->out_bufs) && 1;
+	off = def->out_nums && 1;
 
 	for (i = 0; i < def->out_nums; i++)
 		va_arg(peek, uint32_t *);
 
 	for (i = 0; i < def->out_bufs; i++) {
 		size = va_arg(peek, uint32_t);
-		va_arg(peek, uint32_t *);
 
 		args[off + i].ptr = (__u64) va_arg(peek, void *);
 		args[off + i].length = size;
@@ -146,7 +127,7 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
  * - a (uint32_t val) for each input number
  * - a (uint32_t len, void *buf) for each input buffer
  * - a (uint32_t *val) for each output number
- * - a (uint32_t max_size, uint32_t *len, void *buf) for each output buffer
+ * - a (uint32_t max_size, void *buf) for each output buffer
  *
  * A good example for this would be the adsp_listener_next2 call:
  *
@@ -158,14 +139,14 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
  *					  uint32_t *ctx,
  *					  uint32_t *nested_handle,
  *					  uint32_t *nested_sc,
- *					  uint32_t nested_inbufs_size,
  *					  uint32_t *nested_inbufs_len,
+ *					  uint32_t nested_inbufs_size,
  *					  void *nested_inbufs)
  * {
- *   struct fastrpc_function_def_interp1 def = {
+ *   struct fastrpc_function_def_interp2 def = {
  *     .in_nums = 2,
  *     .in_bufs = 1,
- *     .out_nums = 3,
+ *     .out_nums = 4,
  *     .out_bufs = 1,
  *     .mid = 4,
  *   };
@@ -177,12 +158,12 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
  *		    ctx,
  *		    nested_handle,
  *		    nested_sc,
- *		    nested_inbufs_size,
  *		    nested_inbufs_len,
+ *		    nested_inbufs_size,
  *		    nested_inbufs);
  * }
  */
-int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
+int vfastrpc2(const struct fastrpc_function_def_interp2 *def,
 	      int fd, uint32_t handle, va_list arg_list)
 {
 	va_list peek;
@@ -200,8 +181,10 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 	 * Calculate the amount of needed buffers, accounting for the need for
 	 * the maximum size of the output buffer.
 	 */
-	in_count = io_side_count(def->in_nums + def->out_bufs, def->in_bufs);
-	out_count = io_side_count(def->out_nums, def->out_bufs);
+	in_count = def->in_bufs + ((def->in_nums
+				 || def->in_bufs
+				 || def->out_bufs) && 1);
+	out_count = def->out_bufs + (def->out_nums && 1);
 
 	if (in_count || out_count)
 		args = malloc(sizeof(*args) * (in_count + out_count));
@@ -241,12 +224,6 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 	for (i = 0; i < def->out_nums; i++)
 		*va_arg(arg_list, uint32_t *) = outbuf[i];
 
-	for (i = 1; i < def->out_bufs; i++) {
-		va_arg(arg_list, uint32_t);
-		*va_arg(arg_list, uint32_t *) = outbuf[def->out_nums + i];
-		va_arg(arg_list, void *);
-	}
-
 	if (in_count || out_count)
 		free(args);
 
@@ -259,7 +236,7 @@ int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
 	return ret;
 }
 
-int fastrpc2(const struct fastrpc_function_def_interp1 *def,
+int fastrpc2(const struct fastrpc_function_def_interp2 *def,
 	     int fd, uint32_t handle, ...)
 {
 	va_list arg_list;

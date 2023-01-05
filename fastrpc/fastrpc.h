@@ -42,7 +42,7 @@ struct fastrpc_context {
 	uint32_t handle;
 };
 
-struct fastrpc_function_def_interp1 {
+struct fastrpc_function_def_interp2 {
 	uint32_t msg_id;
 	uint8_t in_nums;
 	uint8_t in_bufs;
@@ -57,13 +57,13 @@ static inline void fastrpc_destroy_context(struct fastrpc_context *ctx)
 	free(ctx);
 }
 
-int vfastrpc2(const struct fastrpc_function_def_interp1 *def,
+int vfastrpc2(const struct fastrpc_function_def_interp2 *def,
 	      int fd, uint32_t handle, va_list arg_list);
-int vfastrpc(const struct fastrpc_function_def_interp1 *def,
+int vfastrpc(const struct fastrpc_function_def_interp2 *def,
 	     const struct fastrpc_context *ctx, va_list arg_list);
-int fastrpc2(const struct fastrpc_function_def_interp1 *def,
+int fastrpc2(const struct fastrpc_function_def_interp2 *def,
 	     int fd, uint32_t handle, ...);
-int fastrpc(const struct fastrpc_function_def_interp1 *def,
+int fastrpc(const struct fastrpc_function_def_interp2 *def,
 	    const struct fastrpc_context *ctx, ...);
 
 #endif
