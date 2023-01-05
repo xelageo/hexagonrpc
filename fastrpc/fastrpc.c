@@ -114,9 +114,12 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
 			    va_list peek)
 {
 	int i;
+	int off;
 	int size;
 
 	allocate_first_outbuf(def, args, outbuf);
+
+	off = (def->out_nums || def->out_bufs) && 1;
 
 	for (i = 0; i < def->out_nums; i++)
 		va_arg(peek, uint32_t *);
@@ -125,9 +128,9 @@ static void prepare_outbufs(const struct fastrpc_function_def_interp1 *def,
 		size = va_arg(peek, uint32_t);
 		va_arg(peek, uint32_t *);
 
-		args[i + 1].ptr = (__u64) va_arg(peek, void *);
-		args[i + 1].length = size;
-		args[i + 1].fd = -1;
+		args[off + i].ptr = (__u64) va_arg(peek, void *);
+		args[off + i].length = size;
+		args[off + i].fd = -1;
 
 		inbuf[i] = size;
 	}
