@@ -19,38 +19,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <errno.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "aee_error.h"
 #include "fastrpc.h"
 #include "fastrpc_remotectl.h"
 
-static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err, size_t err_len))
+static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
 {
 	uint32_t handle;
-	uint32_t err_len;
+	uint32_t dlret;
 	char err[256];
 	int ret;
 
 	ret = fastrpc2(&remotectl_open_def, fd, REMOTECTL_HANDLE,
 		       strlen(name) + 1, name,
 		       &handle,
-		       &err_len,
+		       &dlret,
 		       256, err);
-	if (ret) {
-		err_cb(err, err_len);
+
+	if (ret == -1) {
+		err_cb(strerror(errno));
 		return ret;
+	}
+
+	if (dlret) {
+		err_cb(aee_strerror[dlret]);
+		return dlret;
 	}
 
 	*ctx = fastrpc_create_context(fd, handle);
 
-	return 0;
+	return ret;
 }
 
-static void remotectl_err(const char *err, size_t err_len)
+static void remotectl_err(const char *err)
 {
-	write(STDERR_FILENO, err, err_len);
+	fprintf(stderr, "Could not remotectl: %s\n", err);
 }
 
 int main()
