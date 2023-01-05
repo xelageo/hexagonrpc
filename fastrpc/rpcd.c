@@ -65,7 +65,7 @@ int main()
 {
 	struct fastrpc_context *ctx;
 
-	remotectl_open(-1, "adsp_listener", &ctx, remotectl_err);
+	remotectl_open(-1, "adsp_default_listener", &ctx, remotectl_err);
 	printf("{ .fd = %u, .handle = %u, }\n", ctx->fd, ctx->handle);
 	free(ctx);
 }
