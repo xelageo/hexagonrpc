@@ -29,6 +29,8 @@
 
 #include "aee_error.h"
 #include "fastrpc.h"
+#include "fastrpc_adsp_default_listener.h"
+#include "fastrpc_adsp_listener.h"
 #include "fastrpc_remotectl.h"
 
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
@@ -55,6 +57,33 @@ static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void
 	}
 
 	*ctx = fastrpc_create_context(fd, handle);
+
+	return ret;
+}
+
+static int remotectl_close(struct fastrpc_context *ctx, void (*err_cb)(const char *err))
+{
+	uint32_t handle;
+	uint32_t dlret;
+	char err[256];
+	int ret;
+
+	ret = fastrpc2(&remotectl_close_def, ctx->fd, REMOTECTL_HANDLE,
+		       ctx->handle,
+		       &dlret,
+		       256, err);
+
+	if (ret == -1) {
+		err_cb(strerror(errno));
+		return ret;
+	}
+
+	if (dlret) {
+		err_cb(aee_strerror[dlret]);
+		return dlret;
+	}
+
+	fastrpc_destroy_context(ctx);
 
 	return ret;
 }
@@ -90,10 +119,11 @@ int main()
 		goto err_close_dev;
 	}
 
-	remotectl_open(fd, "adsp_default_listener", &ctx, remotectl_err);
-	printf("{ .fd = %u, .handle = %u, }\n", ctx->fd, ctx->handle);
-	free(ctx);
+	ret = remotectl_open(fd, "adsp_default_listener", &ctx, remotectl_err);
+	if (ret)
+		goto err_close_dev;
 
+	remotectl_close(ctx, remotectl_err);
 	close(fd);
 
 	return 0;
