@@ -172,10 +172,12 @@ int main()
 		goto err_close_handle;
 	}
 
+	remotectl_close(ctx, remotectl_err);
+
 	ret = adsp_listener_init2(fd);
 	if (ret) {
 		fprintf(stderr, "Could not initialize the listener: %u\n", ret);
-		goto err_close_handle;
+		goto err_close_dev;
 	}
 
 	sc = 0xffffffff;
@@ -184,7 +186,6 @@ int main()
 		ret = adsp_listener_next2(fd, rctx, AEE_EUNSUPPORTED, 0, outbuf, &rctx, &handle, &sc, &inbufs_len, 256, inbufs);
 	}
 
-	remotectl_close(ctx, remotectl_err);
 	close(fd);
 
 	return 0;
