@@ -30,9 +30,10 @@
 #include "aee_error.h"
 #include "fastrpc.h"
 #include "fastrpc_adsp_default_listener.h"
-#include "fastrpc_adsp_listener.h"
 #include "fastrpc_chre_slpi.h"
 #include "fastrpc_remotectl.h"
+
+int run_fastrpc_listener(int fd);
 
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
 {
@@ -94,32 +95,6 @@ static int adsp_default_listener_register(struct fastrpc_context *ctx)
 	return fastrpc(&adsp_default_listener_register_def, ctx);
 }
 
-static int adsp_listener_init2(int fd)
-{
-	return fastrpc2(&adsp_listener_init2_def, fd, ADSP_LISTENER_HANDLE);
-}
-
-static int adsp_listener_next2(int fd,
-			       uint32_t ret_rctx,
-			       uint32_t ret_res,
-			       uint32_t ret_outbuf_len, void *ret_outbuf,
-			       uint32_t *rctx,
-			       uint32_t *handle,
-			       uint32_t *sc,
-			       uint32_t *inbufs_len,
-			       uint32_t inbufs_size, void *inbufs)
-{
-	return fastrpc2(&adsp_listener_next2_def, fd, ADSP_LISTENER_HANDLE,
-			ret_rctx,
-			ret_res,
-			ret_outbuf_len, ret_outbuf,
-			rctx,
-			handle,
-			sc,
-			inbufs_len,
-			inbufs_size, inbufs);
-}
-
 static int chre_slpi_start_thread(struct fastrpc_context *ctx)
 {
 	return fastrpc(&chre_slpi_start_thread_def, ctx);
@@ -153,10 +128,6 @@ err:
 int main()
 {
 	struct fastrpc_init_create_static create;
-	uint32_t rctx, handle, sc;
-	uint32_t inbufs_len;
-	char inbufs[256];
-	char outbuf[256];
 	int fd;
 	int ret;
 
@@ -185,17 +156,9 @@ int main()
 	if (ret)
 		goto err_close_dev;
 
-	ret = adsp_listener_init2(fd);
-	if (ret) {
-		fprintf(stderr, "Could not initialize the listener: %u\n", ret);
+	ret = run_fastrpc_listener(fd);
+	if (ret)
 		goto err_close_dev;
-	}
-
-	sc = 0xffffffff;
-
-	while (!ret) {
-		ret = adsp_listener_next2(fd, rctx, AEE_EUNSUPPORTED, 0, outbuf, &rctx, &handle, &sc, &inbufs_len, 256, inbufs);
-	}
 
 	close(fd);
 
