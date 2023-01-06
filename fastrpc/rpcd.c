@@ -130,9 +130,28 @@ static void remotectl_err(const char *err)
 	fprintf(stderr, "Could not remotectl: %s\n", err);
 }
 
-int main()
+static int register_fastrpc_listener(int fd)
 {
 	struct fastrpc_context *ctx;
+	int ret;
+
+	ret = remotectl_open(fd, "adsp_default_listener", &ctx, remotectl_err);
+	if (ret)
+		return 1;
+
+	ret = adsp_default_listener_register(ctx);
+	if (ret) {
+		fprintf(stderr, "Could not register ADSP default listener\n");
+		goto err;
+	}
+
+err:
+	remotectl_close(ctx, remotectl_err);
+	return ret;
+}
+
+int main()
+{
 	struct fastrpc_init_create_static create;
 	uint32_t rctx, handle, sc;
 	uint32_t inbufs_len;
@@ -162,17 +181,9 @@ int main()
 		goto err_close_dev;
 	}
 
-	ret = remotectl_open(fd, "adsp_default_listener", &ctx, remotectl_err);
+	ret = register_fastrpc_listener(fd);
 	if (ret)
 		goto err_close_dev;
-
-	ret = adsp_default_listener_register(ctx);
-	if (ret) {
-		fprintf(stderr, "Could not register ADSP default listener\n");
-		goto err_close_handle;
-	}
-
-	remotectl_close(ctx, remotectl_err);
 
 	ret = adsp_listener_init2(fd);
 	if (ret) {
@@ -189,9 +200,6 @@ int main()
 	close(fd);
 
 	return 0;
-
-err_close_handle:
-	remotectl_close(ctx, remotectl_err);
 
 err_close_dev:
 	close(fd);
