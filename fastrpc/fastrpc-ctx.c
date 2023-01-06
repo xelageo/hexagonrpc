@@ -1,7 +1,7 @@
 /*
  * FastRPC API Replacement - context-based interface
  *
- * Copyright (C) 2022 Richard Acayan
+ * Copyright (C) 2023 Richard Acayan
  *
  * This file is part of sensh.
  *
