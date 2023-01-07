@@ -50,8 +50,9 @@ static int adsp_listener_next2(int fd,
 
 int run_fastrpc_listener(int fd)
 {
+	uint32_t result = 0xffffffff;
 	uint32_t handle;
-	uint32_t rctx;
+	uint32_t rctx = 0;
 	uint32_t sc;
 	uint32_t inbufs_len;
 	char inbufs[256];
@@ -64,10 +65,12 @@ int run_fastrpc_listener(int fd)
 		return ret;
 	}
 
-	sc = 0xffffffff;
-
 	while (!ret) {
-		ret = adsp_listener_next2(fd, rctx, AEE_EUNSUPPORTED, 0, outbuf, &rctx, &handle, &sc, &inbufs_len, 256, inbufs);
+		ret = adsp_listener_next2(fd,
+					  rctx, result,
+					  0, outbuf,
+					  &rctx, &handle, &sc,
+					  &inbufs_len, 256, inbufs);
 	}
 
 	return ret;
