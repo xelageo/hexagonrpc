@@ -21,6 +21,7 @@
 
 #include "fastrpc.h"
 #include "fastrpc_adsp_listener.h"
+#include "iobuffer.h"
 
 static int adsp_listener_init2(int fd)
 {
@@ -50,6 +51,7 @@ static int adsp_listener_next2(int fd,
 
 int run_fastrpc_listener(int fd)
 {
+	struct fastrpc_decoder_context *ctx;
 	uint32_t result = 0xffffffff;
 	uint32_t handle;
 	uint32_t rctx = 0;
@@ -71,6 +73,18 @@ int run_fastrpc_listener(int fd)
 					  0, outbuf,
 					  &rctx, &handle, &sc,
 					  &inbufs_len, 256, inbufs);
+		if (ret)
+			break;
+
+		ctx = inbuf_decode_start(sc);
+		if (!ctx) {
+			ret = -1;
+			break;
+		}
+
+		inbuf_decode(ctx, inbufs_len, inbufs);
+
+		inbuf_decode_free(ctx);
 	}
 
 	return ret;
