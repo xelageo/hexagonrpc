@@ -24,10 +24,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "fastrpc.h"
 #include "iobuffer.h"
-
-// See fastrpc.git/inc/remote.h
-#define REMOTE_SCALARS_INBUFS(sc) (((sc) >> 16) & 0xff)
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 

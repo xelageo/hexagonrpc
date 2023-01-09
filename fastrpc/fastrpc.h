@@ -37,6 +37,10 @@
 
 #define REMOTE_SCALARS_MAKE(nMethod,nIn,nOut)  REMOTE_SCALARS_MAKEX(0,nMethod,nIn,nOut,0,0)
 
+#define REMOTE_SCALARS_METHOD(sc) (((sc) >> 24) & 0x1f)
+#define REMOTE_SCALARS_INBUFS(sc) (((sc) >> 16) & 0xff)
+#define REMOTE_SCALARS_OUTBUFS(sc) (((sc) >> 8) & 0xff)
+
 struct fastrpc_context {
 	int fd;
 	uint32_t handle;
