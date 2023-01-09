@@ -26,7 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-// See fastrpc.git/src/remotectl_stub.c
+// See fastrpc.git/inc/remote.h
 #define REMOTE_SCALARS_MAKEX(nAttr,nMethod,nIn,nOut,noIn,noOut) \
           ((((uint32_t)   (nAttr) &  0x7) << 29) | \
            (((uint32_t) (nMethod) & 0x1f) << 24) | \
