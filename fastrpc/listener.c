@@ -19,6 +19,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
+
 #include "fastrpc.h"
 #include "fastrpc_adsp_listener.h"
 #include "iobuffer.h"
