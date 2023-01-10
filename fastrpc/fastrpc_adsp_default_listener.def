@@ -1,5 +1,5 @@
 /*
- * FastRPC reverse tunnel registration interface - function data declarations
+ * FastRPC reverse tunnel registration interface
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,18 +19,4 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FASTRPC_ADSP_DEFAULT_LISTENER_H
-#define FASTRPC_ADSP_DEFAULT_LISTENER_H
-
-#include "fastrpc.h"
-
-#define DEFINE_REMOTE_PROCEDURE(mid, name,				\
-				innums, inbufs,				\
-				outnums, outbufs)			\
-	extern const struct fastrpc_function_def_interp2 name##_def;
-
-#include "fastrpc_adsp_default_listener.def"
-
-#undef DEFINE_REMOTE_PROCEDURE
-
-#endif
+DEFINE_REMOTE_PROCEDURE(0, adsp_default_listener_register, 0, 0, 0, 0)
