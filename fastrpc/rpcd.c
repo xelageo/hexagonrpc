@@ -30,7 +30,6 @@
 #include "aee_error.h"
 #include "fastrpc.h"
 #include "fastrpc_adsp_default_listener.h"
-#include "fastrpc_chre_slpi.h"
 #include "fastrpc_remotectl.h"
 
 int run_fastrpc_listener(int fd);
@@ -93,11 +92,6 @@ static int remotectl_close(struct fastrpc_context *ctx, void (*err_cb)(const cha
 static int adsp_default_listener_register(struct fastrpc_context *ctx)
 {
 	return fastrpc(&adsp_default_listener_register_def, ctx);
-}
-
-static int chre_slpi_start_thread(struct fastrpc_context *ctx)
-{
-	return fastrpc(&chre_slpi_start_thread_def, ctx);
 }
 
 static void remotectl_err(const char *err)
