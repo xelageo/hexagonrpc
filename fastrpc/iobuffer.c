@@ -86,6 +86,23 @@ static size_t consume_buf(struct fastrpc_decoder_context *ctx,
 	return segment;
 }
 
+static size_t align_and_copy_outbuf(const struct fastrpc_io_buffer *outbuf,
+				    void *dest,
+				    off_t align)
+{
+	char *ptr = dest;
+	size_t zero = 0;
+
+	if (align) {
+		zero = 8 - align;
+		memset(ptr, 0, zero);
+	}
+
+	memcpy(&ptr[zero], outbuf->p, outbuf->s);
+
+	return zero + outbuf->s;
+}
+
 void iobuf_free(size_t n_iobufs, struct fastrpc_io_buffer *iobufs)
 {
 	size_t i;
@@ -150,6 +167,43 @@ void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *s
 		} else {
 			off += consume_alignment(ctx, len - off);
 			off += consume_buf(ctx, len - off, &buf[off]);
+		}
+	}
+}
+
+size_t outbufs_calculate_size(size_t n_outbufs, const struct fastrpc_io_buffer *outbufs)
+{
+	size_t i;
+	size_t size = 0;
+
+	for (i = 0; i < n_outbufs; i++) {
+		size += 4;
+
+		if (size & 0x7)
+			size += 8 - (size & 0x7);
+		size += outbufs[i].s;
+	}
+
+	return size;
+}
+
+void outbufs_encode(size_t n_outbufs, const struct fastrpc_io_buffer *outbufs,
+		    void *dest)
+{
+	char *ptr = dest;
+	off_t align = 0;
+	size_t written;
+	size_t i;
+
+	for (i = 0; i < n_outbufs; i++) {
+		*(uint32_t *) ptr = outbufs[i].s;
+		ptr = &ptr[4];
+		align = (align + 4) & 0x7;
+
+		if (outbufs[i].s) {
+			written = align_and_copy_outbuf(&outbufs[i], ptr, align);
+			ptr = &ptr[written];
+			align = (align + written) & 0x7;
 		}
 	}
 }
