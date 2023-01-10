@@ -31,8 +31,7 @@
 #include "fastrpc.h"
 #include "fastrpc_adsp_default_listener.h"
 #include "fastrpc_remotectl.h"
-
-int run_fastrpc_listener(int fd);
+#include "listener.h"
 
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
 {
