@@ -51,6 +51,48 @@ static int adsp_listener_next2(int fd,
 			inbufs_size, inbufs);
 }
 
+static int return_for_next_invoke(int fd,
+				  uint32_t result,
+				  uint32_t *rctx,
+				  uint32_t *handle,
+				  uint32_t *sc,
+				  struct fastrpc_io_buffer **decoded)
+{
+	struct fastrpc_decoder_context *ctx;
+	char inbufs[256];
+	char *outbufs = NULL;
+	uint32_t inbufs_len;
+	uint32_t outbufs_len = 0;
+	int ret;
+
+	ret = adsp_listener_next2(fd,
+				  *rctx, result,
+				  outbufs_len, outbufs,
+				  rctx, handle, sc,
+				  &inbufs_len, 256, inbufs);
+	if (ret) {
+		fprintf(stderr, "Could not fetch next FastRPC message: %d\n", ret);
+		return ret;
+	}
+
+	if (inbufs_len > 256) {
+		fprintf(stderr, "Large (>256B) input buffers aren't implemented\n");
+		return -1;
+	}
+
+	ctx = inbuf_decode_start(*sc);
+	if (!ctx) {
+		perror("Could not start decoding\n");
+		return -1;
+	}
+
+	inbuf_decode(ctx, inbufs_len, inbufs);
+
+	*decoded = inbuf_decode_finish(ctx);
+
+	return 0;
+}
+
 int run_fastrpc_listener(int fd)
 {
 	struct fastrpc_io_buffer *decoded = NULL;
@@ -59,9 +101,6 @@ int run_fastrpc_listener(int fd)
 	uint32_t handle;
 	uint32_t rctx = 0;
 	uint32_t sc;
-	uint32_t inbufs_len;
-	char inbufs[256];
-	char outbuf[256];
 	int ret;
 
 	ret = adsp_listener_init2(fd);
@@ -71,25 +110,14 @@ int run_fastrpc_listener(int fd)
 	}
 
 	while (!ret) {
-		ret = adsp_listener_next2(fd,
-					  rctx, result,
-					  0, outbuf,
-					  &rctx, &handle, &sc,
-					  &inbufs_len, 256, inbufs);
+		ret = return_for_next_invoke(fd,
+					     result, &rctx, &handle, &sc,
+					     &decoded);
 		if (ret)
 			break;
 
-		ctx = inbuf_decode_start(sc);
-		if (!ctx) {
-			ret = -1;
-			break;
-		}
-
-		inbuf_decode(ctx, inbufs_len, inbufs);
-
-		decoded = inbuf_decode_finish(ctx);
-
-		iobuf_free(ctx);
+		if (decoded != NULL)
+			iobuf_free(REMOTE_SCALARS_OUTBUFS(sc), decoded);
 	}
 
 	return ret;
