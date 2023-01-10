@@ -29,12 +29,13 @@
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-static size_t consume_size(struct fastrpc_decoder_context *ctx, size_t len, char *buf)
+static size_t consume_size(struct fastrpc_decoder_context *ctx,
+			   size_t len, const char *buf)
 {
 	size_t segment;
 
 	segment = MIN(len, 4 - ctx->size_off);
-	memcpy(&(&ctx->size)[ctx->size_off], buf, segment);
+	memcpy(&((char *) &ctx->size)[ctx->size_off], buf, segment);
 	ctx->size_off = (ctx->size_off + segment) % 4;
 	ctx->align = (ctx->align + segment) & 0x7;
 
@@ -61,12 +62,16 @@ static size_t consume_alignment(struct fastrpc_decoder_context *ctx, size_t len)
 	return segment;
 }
 
-static size_t consume_buf(struct fastrpc_decoder_context *ctx, size_t len, char *buf)
+static size_t consume_buf(struct fastrpc_decoder_context *ctx,
+			  size_t len, const void *buf)
 {
 	size_t segment;
+	void *dest;
+
+	dest = (void *) &((char *) ctx->inbufs[ctx->idx].p)[ctx->buf_off];
 
 	segment = MIN(len, ctx->size - ctx->buf_off);
-	memcpy(&ctx->inbufs[ctx->idx].p[ctx->buf_off], buf, segment);
+	memcpy(dest, buf, segment);
 
 	if (ctx->buf_off + segment >= ctx->size) {
 		ctx->size = 0;
@@ -115,8 +120,9 @@ void inbuf_decode_free(struct fastrpc_decoder_context *ctx)
 	free(ctx);
 }
 
-void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, char *buf)
+void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src)
 {
+	const char *buf = src;
 	size_t off = 0;
 
 	while (off < len && ctx->idx < ctx->n_inbufs) {
