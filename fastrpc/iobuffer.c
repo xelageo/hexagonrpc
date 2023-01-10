@@ -86,6 +86,16 @@ static size_t consume_buf(struct fastrpc_decoder_context *ctx,
 	return segment;
 }
 
+void iobuf_free(size_t n_iobufs, struct fastrpc_io_buffer *iobufs)
+{
+	size_t i;
+
+	for (i = 0; i < n_iobufs; i++)
+		free(iobufs[i].p);
+
+	free(iobufs);
+}
+
 struct fastrpc_decoder_context *inbuf_decode_start(uint32_t sc)
 {
 	struct fastrpc_decoder_context *ctx;
@@ -114,10 +124,13 @@ err:
 	return NULL;
 }
 
-void inbuf_decode_free(struct fastrpc_decoder_context *ctx)
+struct fastrpc_io_buffer *inbuf_decode_finish(struct fastrpc_decoder_context *ctx)
 {
-	free(ctx->inbufs);
+	struct fastrpc_io_buffer *inbufs = ctx->inbufs;
+
 	free(ctx);
+
+	return inbufs;
 }
 
 void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src)

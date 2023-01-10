@@ -53,6 +53,7 @@ static int adsp_listener_next2(int fd,
 
 int run_fastrpc_listener(int fd)
 {
+	struct fastrpc_io_buffer *decoded = NULL;
 	struct fastrpc_decoder_context *ctx;
 	uint32_t result = 0xffffffff;
 	uint32_t handle;
@@ -86,7 +87,9 @@ int run_fastrpc_listener(int fd)
 
 		inbuf_decode(ctx, inbufs_len, inbufs);
 
-		inbuf_decode_free(ctx);
+		decoded = inbuf_decode_finish(ctx);
+
+		iobuf_free(ctx);
 	}
 
 	return ret;

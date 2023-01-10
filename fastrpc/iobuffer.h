@@ -20,8 +20,10 @@ struct fastrpc_decoder_context {
 	off_t align;
 };
 
+void iobuf_free(size_t n_iobufs, struct fastrpc_io_buffer *iobufs);
+
 struct fastrpc_decoder_context *inbuf_decode_start(uint32_t sc);
+struct fastrpc_io_buffer *inbuf_decode_finish(struct fastrpc_decoder_context *ctx);
 void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src);
-void inbuf_decode_free(struct fastrpc_decoder_context *ctx);
 
 #endif
