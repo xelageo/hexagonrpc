@@ -133,6 +133,11 @@ struct fastrpc_io_buffer *inbuf_decode_finish(struct fastrpc_decoder_context *ct
 	return inbufs;
 }
 
+int inbuf_decode_is_complete(struct fastrpc_decoder_context *ctx)
+{
+	return ctx->idx >= ctx->n_inbufs;
+}
+
 void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src)
 {
 	const char *buf = src;

@@ -88,6 +88,12 @@ static int return_for_next_invoke(int fd,
 
 	inbuf_decode(ctx, inbufs_len, inbufs);
 
+	if (!inbuf_decode_is_complete(ctx)) {
+		fprintf(stderr, "Expected more input buffers\n");
+		ret = -1;
+		goto err_free_outbufs;
+	}
+
 	*decoded = inbuf_decode_finish(ctx);
 
 	return 0;
