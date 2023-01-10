@@ -1,5 +1,5 @@
 /*
- * FastRPC reverse tunnel main interface - function data declarations
+ * FastRPC reverse tunnel main interface - function definitions
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,20 +19,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FASTRPC_ADSP_LISTENER_H
-#define FASTRPC_ADSP_LISTENER_H
-
 #include "fastrpc.h"
-
-#define ADSP_LISTENER_HANDLE 3
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name,				\
 				innums, inbufs,				\
 				outnums, outbufs)			\
-	extern const struct fastrpc_function_def_interp2 name##_def;
+	const struct fastrpc_function_def_interp2 name##_def = {	\
+		.msg_id = mid,						\
+		.in_nums = innums,					\
+		.in_bufs = inbufs,					\
+		.out_nums = outnums,					\
+		.out_bufs = outbufs,					\
+	};
 
 #include "fastrpc_adsp_listener.def"
 
 #undef DEFINE_REMOTE_PROCEDURE
-
-#endif
