@@ -116,7 +116,6 @@ void iobuf_free(size_t n_iobufs, struct fastrpc_io_buffer *iobufs)
 struct fastrpc_decoder_context *inbuf_decode_start(uint32_t sc)
 {
 	struct fastrpc_decoder_context *ctx;
-	int n_inbufs;
 
 	ctx = malloc(sizeof(*ctx));
 	if (ctx == NULL)

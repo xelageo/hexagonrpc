@@ -190,7 +190,6 @@ static int invoke_requested_procedure(uint32_t handle,
 	const struct fastrpc_function_impl *impl;
 	uint8_t in_count;
 	uint8_t out_count;
-	size_t i;
 	int ret;
 
 	if (handle >= sizeof(interfaces) / sizeof(*interfaces)
@@ -229,7 +228,6 @@ int run_fastrpc_listener(int fd)
 {
 	struct fastrpc_io_buffer *decoded = NULL,
 				 *returned = NULL;
-	struct fastrpc_decoder_context *ctx;
 	uint32_t result = 0xffffffff;
 	uint32_t handle;
 	uint32_t rctx = 0;
