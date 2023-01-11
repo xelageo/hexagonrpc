@@ -31,6 +31,8 @@ struct fastrpc_context *fastrpc_create_context(int fd, uint32_t handle)
 
 	ctx->fd = fd;
 	ctx->handle = handle;
+
+	return ctx;
 }
 
 int vfastrpc(const struct fastrpc_function_def_interp2 *def,
