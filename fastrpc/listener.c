@@ -256,7 +256,7 @@ int run_fastrpc_listener(int fd)
 			break;
 
 		if (decoded != NULL)
-			iobuf_free(REMOTE_SCALARS_OUTBUFS(sc), decoded);
+			iobuf_free(REMOTE_SCALARS_INBUFS(sc), decoded);
 	}
 
 	return ret;
