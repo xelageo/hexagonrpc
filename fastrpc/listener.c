@@ -232,6 +232,7 @@ int run_fastrpc_listener(int fd)
 	uint32_t handle;
 	uint32_t rctx = 0;
 	uint32_t sc = REMOTE_SCALARS_MAKE(0, 0, 0);
+	uint32_t n_outbufs = 0;
 	int ret;
 
 	ret = adsp_listener_init2(fd);
@@ -248,7 +249,7 @@ int run_fastrpc_listener(int fd)
 			break;
 
 		if (returned != NULL)
-			iobuf_free(REMOTE_SCALARS_OUTBUFS(sc), returned);
+			iobuf_free(n_outbufs, returned);
 
 		ret = invoke_requested_procedure(handle, sc, &result,
 						 decoded, &returned);
@@ -257,6 +258,8 @@ int run_fastrpc_listener(int fd)
 
 		if (decoded != NULL)
 			iobuf_free(REMOTE_SCALARS_INBUFS(sc), decoded);
+
+		n_outbufs = REMOTE_SCALARS_OUTBUFS(sc);
 	}
 
 	return ret;
