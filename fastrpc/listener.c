@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
+#include "aee_error.h"
 #include "fastrpc.h"
 #include "fastrpc_adsp_listener.h"
 #include "iobuffer.h"
@@ -109,12 +110,20 @@ static int check_inbuf_sizes(const struct fastrpc_function_def_interp2 *def,
 
 	if (inbufs[0].s != 4 * (def->in_nums
 			      + def->in_bufs
-			      + def->out_bufs))
+			      + def->out_bufs)) {
+		fprintf(stderr, "Invalid number of input numbers: %lu (expected %u)\n",
+				inbufs[0].s,
+				4 * (def->in_nums
+				   + def->in_bufs
+				   + def->out_bufs));
 		return -1;
+	}
 
 	for (i = 0; i < def->in_bufs; i++) {
-		if (inbufs[i + 1].s != sizes[i])
+		if (inbufs[i + 1].s != sizes[i]) {
+			fprintf(stderr, "Invalid buffer size\n");
 			return -1;
+		}
 	}
 
 	return 0;
@@ -153,7 +162,11 @@ static int return_for_next_invoke(int fd,
 				  rctx, handle, sc,
 				  &inbufs_len, 256, inbufs);
 	if (ret) {
-		fprintf(stderr, "Could not fetch next FastRPC message: %d\n", ret);
+		if (ret == -1)
+			perror("Could not fetch next FastRPC message");
+		else
+			fprintf(stderr, "Could not fetch next FastRPC message: %d\n", ret);
+
 		goto err_free_outbufs;
 	}
 
@@ -194,17 +207,35 @@ static int invoke_requested_procedure(uint32_t handle,
 	const struct fastrpc_function_impl *impl;
 	uint8_t in_count;
 	uint8_t out_count;
+	uint32_t method = REMOTE_SCALARS_METHOD(sc);
 	int ret;
 
-	if (handle >= fastrpc_listener_n_interfaces
-	 || REMOTE_SCALARS_METHOD(sc) >= fastrpc_listener_interfaces[handle]->n_procs)
-		return -1;
+	if (sc & 0xff) {
+		fprintf(stderr, "Handles are not supported, but got %u in, %u out\n",
+				(sc & 0xf0) >> 4, sc & 0xf);
+		*result = AEE_EBADPARM;
+		return 1;
+	}
 
-	impl = &fastrpc_listener_interfaces[handle]->procs[REMOTE_SCALARS_METHOD(sc)];
+	if (handle >= fastrpc_listener_n_interfaces) {
+		fprintf(stderr, "Unsupported handle: %u\n", handle);
+		*result = AEE_EUNSUPPORTED;
+		return 1;
+	}
 
-	if (impl->def == NULL
-	 || impl->impl == NULL)
-		return -1;
+	if (method >= fastrpc_listener_interfaces[handle]->n_procs) {
+		fprintf(stderr, "Unsupported method: %u (%08x)\n", method, sc);
+		*result = AEE_EUNSUPPORTED;
+		return 1;
+	}
+
+	impl = &fastrpc_listener_interfaces[handle]->procs[method];
+
+	if (impl->def == NULL || impl->impl == NULL) {
+		fprintf(stderr, "Unsupported method: %u (%08x)\n", method, sc);
+		*result = AEE_EUNSUPPORTED;
+		return 1;
+	}
 
 	in_count = impl->def->in_bufs + ((impl->def->in_nums
 				       || impl->def->in_bufs
@@ -212,16 +243,24 @@ static int invoke_requested_procedure(uint32_t handle,
 	out_count = impl->def->out_bufs + (impl->def->out_nums && 1);
 
 	if (REMOTE_SCALARS_INBUFS(sc) != in_count
-	 || REMOTE_SCALARS_OUTBUFS(sc) != out_count)
-		return -1;
+	 || REMOTE_SCALARS_OUTBUFS(sc) != out_count) {
+		fprintf(stderr, "Unexpected buffer count: %08x\n", sc);
+		*result = AEE_EBADPARM;
+		return 1;
+	}
 
 	ret = check_inbuf_sizes(impl->def, decoded);
-	if (ret)
-		return ret;
+	if (ret) {
+		*result = AEE_EBADPARM;
+		return 1;
+	}
 
 	*returned = allocate_outbufs(impl->def, decoded[0].p);
-	if (*returned == NULL && out_count > 0)
-		return -1;
+	if (*returned == NULL && out_count > 0) {
+		perror("Could not allocate output buffers");
+		*result = AEE_ENOMEMORY;
+		return 1;
+	}
 
 	*result = impl->impl(decoded, *returned);
 
