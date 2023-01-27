@@ -26,7 +26,7 @@
 #include "iobuffer.h"
 #include "listener.h"
 
-const struct fastrpc_interface *interfaces[] = {
+const struct fastrpc_interface *fastrpc_listener_interfaces[] = {
 };
 
 static int adsp_listener_init2(int fd)
@@ -192,11 +192,12 @@ static int invoke_requested_procedure(uint32_t handle,
 	uint8_t out_count;
 	int ret;
 
-	if (handle >= sizeof(interfaces) / sizeof(*interfaces)
-	 || REMOTE_SCALARS_METHOD(sc) >= interfaces[handle]->n_procs)
+	if (handle >= sizeof(fastrpc_listener_interfaces)
+		    / sizeof(*fastrpc_listener_interfaces)
+	 || REMOTE_SCALARS_METHOD(sc) >= fastrpc_listener_interfaces[handle]->n_procs)
 		return -1;
 
-	impl = &interfaces[handle]->procs[REMOTE_SCALARS_METHOD(sc)];
+	impl = &fastrpc_listener_interfaces[handle]->procs[REMOTE_SCALARS_METHOD(sc)];
 
 	if (impl->def == NULL
 	 || impl->impl == NULL)

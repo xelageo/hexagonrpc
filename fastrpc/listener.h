@@ -16,6 +16,8 @@ struct fastrpc_interface {
 	struct fastrpc_function_impl procs[];
 };
 
+extern const struct fastrpc_interface *fastrpc_listener_interfaces[];
+
 int run_fastrpc_listener(int fd);
 
 #endif
