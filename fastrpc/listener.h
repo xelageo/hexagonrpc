@@ -18,6 +18,8 @@ struct fastrpc_interface {
 	struct fastrpc_function_impl procs[];
 };
 
+extern const struct fastrpc_interface localctl_interface;
+
 extern const struct fastrpc_interface *fastrpc_listener_interfaces[];
 extern size_t fastrpc_listener_n_interfaces;
 

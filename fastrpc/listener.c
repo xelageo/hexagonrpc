@@ -25,10 +25,12 @@
 #include "aee_error.h"
 #include "fastrpc.h"
 #include "fastrpc_adsp_listener.h"
+#include "fastrpc_remotectl.h"
 #include "iobuffer.h"
 #include "listener.h"
 
 const struct fastrpc_interface *fastrpc_listener_interfaces[] = {
+	[REMOTECTL_HANDLE] = &localctl_interface,
 };
 
 size_t fastrpc_listener_n_interfaces = sizeof(fastrpc_listener_interfaces)
