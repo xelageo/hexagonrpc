@@ -135,15 +135,6 @@ int main()
 		goto err_close_dev;
 	}
 
-	create.namelen = sizeof("audiopd");
-	create.memlen = 1048576;
-	create.name = (__u64) "audiopd";
-	ret = ioctl(fd, FASTRPC_IOCTL_INIT_CREATE_STATIC, &create);
-	if (ret) {
-		printf("Could not ioctl /dev/fastrpc-adsp: %s\n", strerror(errno));
-		goto err_close_dev;
-	}
-
 	ret = register_fastrpc_listener(fd);
 	if (ret)
 		goto err_close_dev;
