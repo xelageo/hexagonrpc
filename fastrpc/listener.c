@@ -19,6 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <stddef.h>
 #include <stdio.h>
 
 #include "fastrpc.h"
@@ -28,6 +29,9 @@
 
 const struct fastrpc_interface *fastrpc_listener_interfaces[] = {
 };
+
+size_t fastrpc_listener_n_interfaces = sizeof(fastrpc_listener_interfaces)
+				     / sizeof(*fastrpc_listener_interfaces);
 
 static int adsp_listener_init2(int fd)
 {
@@ -192,8 +196,7 @@ static int invoke_requested_procedure(uint32_t handle,
 	uint8_t out_count;
 	int ret;
 
-	if (handle >= sizeof(fastrpc_listener_interfaces)
-		    / sizeof(*fastrpc_listener_interfaces)
+	if (handle >= fastrpc_listener_n_interfaces
 	 || REMOTE_SCALARS_METHOD(sc) >= fastrpc_listener_interfaces[handle]->n_procs)
 		return -1;
 
