@@ -2,6 +2,7 @@
 #define LISTENER_H
 
 #include <stddef.h>
+#include <stdint.h>
 
 #include "fastrpc.h"
 #include "iobuffer.h"
