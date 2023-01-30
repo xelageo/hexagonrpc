@@ -20,6 +20,7 @@
  */
 
 #include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -68,6 +69,9 @@ static uint32_t localctl_open(const struct fastrpc_io_buffer *inbufs,
 			return 0;
 		}
 	}
+
+	fprintf(stderr, "Could not find local interface %s\n",
+			(const char *) inbufs[1].p);
 
 	first_out->handle = 0;
 	first_out->error = -5;
