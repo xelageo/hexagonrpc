@@ -31,6 +31,8 @@
 
 const struct fastrpc_interface *fastrpc_listener_interfaces[] = {
 	[REMOTECTL_HANDLE] = &localctl_interface,
+
+	&apps_std_interface,
 };
 
 size_t fastrpc_listener_n_interfaces = sizeof(fastrpc_listener_interfaces)

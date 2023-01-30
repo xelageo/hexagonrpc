@@ -1,0 +1,31 @@
+/*
+ * FastRPC operating system interface
+ *
+ * Copyright (C) 2023 Richard Acayan
+ *
+ * This file is part of sensh.
+ *
+ * Sensh is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+DEFINE_REMOTE_PROCEDURE(1, apps_std_freopen, 1, 0, 1, 1)
+DEFINE_REMOTE_PROCEDURE(2, apps_std_fflush, 8, 0, 0, 0)
+DEFINE_REMOTE_PROCEDURE(3, apps_std_fclose, 1, 0, 0, 0)
+DEFINE_REMOTE_PROCEDURE(4, apps_std_fread, 1, 0, 2, 1)
+DEFINE_REMOTE_PROCEDURE(9, apps_std_fseek, 3, 0, 0, 0)
+DEFINE_REMOTE_PROCEDURE(19, apps_std_fopen_with_env, 0, 4, 1, 0)
+DEFINE_REMOTE_PROCEDURE(26, apps_std_opendir, 0, 1, 2, 0)
+DEFINE_REMOTE_PROCEDURE(27, apps_std_closedir, 2, 0, 0, 0)
+DEFINE_REMOTE_PROCEDURE(28, apps_std_readdir, 2, 0, 96, 0)
+DEFINE_REMOTE_PROCEDURE(31, apps_std_stat, 1, 1, 24, 0)
