@@ -325,7 +325,7 @@ static void run_cmd_watch(struct qrtr_client_ctx *ctx, int argc, char **argv) {
 	SnsStdSuid suid;
 
 	if (argc < 2) {
-		fprintf(stderr, "sensh: usage: watch SUID");
+		fprintf(stderr, "sensh: usage: watch SUID\n");
 		return;
 	}
 
@@ -338,7 +338,7 @@ static void run_cmd_attr(struct qrtr_client_ctx *ctx, int argc, char **argv) {
 	SnsStdSuid suid;
 
 	if (argc < 2) {
-		fprintf(stderr, "sensh: usage: attr SUID");
+		fprintf(stderr, "sensh: usage: attr SUID\n");
 		return;
 	}
 
