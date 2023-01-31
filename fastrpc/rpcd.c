@@ -23,6 +23,7 @@
 #include <fcntl.h>
 #include <misc/fastrpc.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -30,6 +31,7 @@
 #include "aee_error.h"
 #include "fastrpc.h"
 #include "fastrpc_adsp_default_listener.h"
+#include "fastrpc_chre_slpi.h"
 #include "fastrpc_remotectl.h"
 #include "listener.h"
 
@@ -95,6 +97,16 @@ static int adsp_default_listener_register(struct fastrpc_context *ctx)
 	return fastrpc(&adsp_default_listener_register_def, ctx);
 }
 
+static int chre_slpi_start_thread(struct fastrpc_context *ctx)
+{
+	return fastrpc(&chre_slpi_start_thread_def, ctx);
+}
+
+static int chre_slpi_wait_on_thread_exit(struct fastrpc_context *ctx)
+{
+	return fastrpc(&chre_slpi_wait_on_thread_exit_def, ctx);
+}
+
 static void remotectl_err(const char *err)
 {
 	fprintf(stderr, "Could not remotectl: %s\n", err);
@@ -120,11 +132,52 @@ err:
 	return ret;
 }
 
+static void *start_reverse_tunnel(void *data)
+{
+	int *fd = data;
+	int ret;
+
+	ret = register_fastrpc_listener(*fd);
+	if (ret)
+	        return NULL;
+
+	run_fastrpc_listener(*fd);
+
+	return NULL;
+}
+
+static void *start_chre_client(void *data)
+{
+	struct fastrpc_context *ctx;
+	int *fd = data;
+	int ret;
+
+	ret = remotectl_open(*fd, "chre_slpi", &ctx, remotectl_err);
+	if (ret)
+		return NULL;
+
+	ret = chre_slpi_start_thread(ctx);
+	if (ret) {
+		fprintf(stderr, "Could not start CHRE\n");
+		goto err;
+	}
+
+	ret = chre_slpi_wait_on_thread_exit(ctx);
+	if (ret) {
+		fprintf(stderr, "Could not wait for CHRE thread\n");
+		goto err;
+	}
+
+err:
+	remotectl_close(ctx, remotectl_err);
+	return NULL;
+}
+
 int main()
 {
 	struct fastrpc_init_create_static create;
-	int fd;
-	int ret;
+	pthread_t chre_thread, listener_thread;
+	int fd, ret;
 
 	fd = open("/dev/fastrpc-adsp", O_RDWR);
 	if (fd == -1) {
@@ -138,13 +191,11 @@ int main()
 		goto err_close_dev;
 	}
 
-	ret = register_fastrpc_listener(fd);
-	if (ret)
-		goto err_close_dev;
+	pthread_create(&listener_thread, NULL, start_reverse_tunnel, &fd);
+	pthread_create(&chre_thread, NULL, start_chre_client, &fd);
 
-	ret = run_fastrpc_listener(fd);
-	if (ret)
-		goto err_close_dev;
+	pthread_join(listener_thread, NULL);
+	pthread_join(chre_thread, NULL);
 
 	close(fd);
 
