@@ -51,7 +51,10 @@ static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void
 		return ret;
 	}
 
-	if (dlret) {
+	if (dlret == -5) {
+		err_cb(err);
+		return dlret;
+	} else if (dlret) {
 		err_cb(aee_strerror[dlret]);
 		return dlret;
 	}
