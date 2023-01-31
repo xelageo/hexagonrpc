@@ -313,38 +313,48 @@ void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, siz
 }
 
 static void run_cmd_lookup(struct qrtr_client_ctx *ctx, int argc, char **argv) {
-	if (argc < 2) {
-		fprintf(stderr, "sensh: usage: lookup DATA_TYPE\n");
-		return;
-	}
+	int i;
 
-	sns_send_suid_req(ctx, argv[1]);
+	if (argc < 2) {
+		sns_send_suid_req(ctx, "");
+	} else {
+		for (i = 1; i < argc; i++)
+			sns_send_suid_req(ctx, argv[i]);
+	}
 }
 
 static void run_cmd_watch(struct qrtr_client_ctx *ctx, int argc, char **argv) {
 	SnsStdSuid suid;
+	int i;
 
 	if (argc < 2) {
-		fprintf(stderr, "sensh: usage: watch SUID\n");
+		fprintf(stderr, "sensh: usage: watch SUID ...\n");
 		return;
 	}
 
 	sns_std_suid__init(&suid);
-	sns_parse_suid(argv[1], &suid);
-	sns_send_watch_req(ctx, &suid);
+
+	for (i = 0; i < argc; i++) {
+		sns_parse_suid(argv[i], &suid);
+		sns_send_watch_req(ctx, &suid);
+	}
 }
 
 static void run_cmd_attr(struct qrtr_client_ctx *ctx, int argc, char **argv) {
 	SnsStdSuid suid;
+	int i;
 
 	if (argc < 2) {
-		fprintf(stderr, "sensh: usage: attr SUID\n");
+		fprintf(stderr, "sensh: usage: attr SUID ...\n");
 		return;
 	}
 
 	sns_std_suid__init(&suid);
-	sns_parse_suid(argv[1], &suid);
-	sns_send_attr_req(ctx, &suid);
+
+	for (i = 0; i < argc; i++) {
+		sns_parse_suid(argv[i], &suid);
+		sns_send_attr_req(ctx, &suid);
+	}
 }
 
 static int run_shell_command(struct qrtr_client_ctx *ctx) {
