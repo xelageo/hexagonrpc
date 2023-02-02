@@ -38,7 +38,7 @@
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
 {
 	uint32_t handle;
-	uint32_t dlret;
+	int32_t dlret;
 	char err[256];
 	int ret;
 
