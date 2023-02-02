@@ -175,7 +175,6 @@ err:
 
 int main()
 {
-	struct fastrpc_init_create_static create;
 	pthread_t chre_thread, listener_thread;
 	int fd, ret;
 

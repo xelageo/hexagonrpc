@@ -52,7 +52,6 @@ static int mapped_from_dirent(void *dirent_data, bool dir, void **fd_data)
 	struct mapped_ctx *ctx;
 	const char *name = dirent_data;
 	int flags = O_RDONLY;
-	int fd;
 	int ret;
 
 	ctx = malloc(sizeof(struct mapped_ctx));

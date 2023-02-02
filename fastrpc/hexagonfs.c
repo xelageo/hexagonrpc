@@ -335,7 +335,6 @@ ssize_t hexagonfs_read(int fileno, size_t size, void *ptr)
 int hexagonfs_readdir(int fileno, size_t ent_size, char *ent)
 {
 	struct hexagonfs_fd *fd;
-	int ret;
 
 	if (fileno >= HEXAGONFS_MAX_FD)
 		return -EBADF;
