@@ -150,7 +150,7 @@ static uint32_t apps_std_fseek(const struct fastrpc_io_buffer *inbufs,
 
 	whence = apps_std_whence_table[first_in->whence];
 
-	ret = hexagonfs_lseek(first_in->fd, first_in->pos, first_in->whence);
+	ret = hexagonfs_lseek(first_in->fd, first_in->pos, whence);
 	if (ret) {
 		fprintf(stderr, "Could not seek stream: %s\n", strerror(-ret));
 		return AEE_EFAILED;
