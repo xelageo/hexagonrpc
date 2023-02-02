@@ -47,6 +47,9 @@ static int plat_subtype_name_from_dirent(void *dirent_data,
 {
 	struct plat_subtype_ctx *ctx;
 
+	if (dir)
+		return -ENOTDIR;
+
 	ctx = malloc(sizeof(struct plat_subtype_ctx));
 	if (ctx == NULL)
 		return -ENOMEM;
