@@ -81,13 +81,13 @@ Counting each of these will give the numbers needed for the function definition.
 
 A function definition looks like:
 
-    	const struct fastrpc_function_def_interp2 adsp_listener_next2_def = {
-    		.msg_id = 4,
-    		.in_nums = 2,
-    		.in_bufs = 1,
-    		.out_nums = 4,
-    		.out_bufs = 1,
-    	};
+    const struct fastrpc_function_def_interp2 adsp_listener_next2_def = {
+    	.msg_id = 4,
+    	.in_nums = 2,
+    	.in_bufs = 1,
+    	.out_nums = 4,
+    	.out_bufs = 1,
+    };
 
 or:
 
@@ -117,9 +117,9 @@ The reverse tunnel's `apps_std` interface serves files to the remote processor.
 These files are searched for in:
 
     Physical file/dir			Android file/dir
-    /etc/qcom/sensors/sns_reg.conf	/vendor/etc/sensors/sns_reg_config
+    /etc/qcom/sensors/sns_reg.conf		/vendor/etc/sensors/sns_reg_config
     /etc/qcom/sensors/config		/vendor/etc/sensors/config
-    /var/lib/qcom/sensors		/mnt/vendor/persist/sensors/registry
+    /var/lib/qcom/sensors			/mnt/vendor/persist/sensors/registry
     /usr/lib/qcom/adsp			/vendor/dsp/adsp
 
 These files and directories should be populated with files from your device's
