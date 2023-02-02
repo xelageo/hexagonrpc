@@ -19,12 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <libhexagonrpc/fastrpc.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#include "fastrpc.h"
 #include "iobuffer.h"
 
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))

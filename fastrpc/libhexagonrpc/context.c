@@ -1,5 +1,5 @@
 /*
- * FastRPC operating system interface - function data declarations
+ * FastRPC API Replacement - context-based interface
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,18 +19,38 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FASTRPC_APPS_STD_H
-#define FASTRPC_APPS_STD_H
+#include <libhexagonrpc/fastrpc.h>
 
-#include "fastrpc.h"
+struct fastrpc_context *fastrpc_create_context(int fd, uint32_t handle)
+{
+	struct fastrpc_context *ctx;
 
-#define DEFINE_REMOTE_PROCEDURE(mid, name,				\
-				innums, inbufs,				\
-				outnums, outbufs)			\
-	extern const struct fastrpc_function_def_interp2 name##_def;
+	ctx = malloc(sizeof(*ctx));
+	if (ctx == NULL)
+		return NULL;
 
-#include "fastrpc_apps_std.def"
+	ctx->fd = fd;
+	ctx->handle = handle;
 
-#undef DEFINE_REMOTE_PROCEDURE
+	return ctx;
+}
 
-#endif
+int vfastrpc(const struct fastrpc_function_def_interp2 *def,
+	     const struct fastrpc_context *ctx, va_list arg_list)
+{
+	return vfastrpc2(def, ctx->fd, ctx->handle, arg_list);
+}
+
+int fastrpc(const struct fastrpc_function_def_interp2 *def,
+	    const struct fastrpc_context *ctx, ...)
+{
+	va_list arg_list;
+	int ret;
+
+	va_start(arg_list, ctx);
+	ret = vfastrpc(def, ctx, arg_list);
+	va_end(arg_list);
+
+	return ret;
+}
+

@@ -1,5 +1,5 @@
 /*
- * FastRPC reverse tunnel main interface - function definitions
+ * FastRPC operating system interface - function definitions
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "fastrpc.h"
+#include <libhexagonrpc/fastrpc.h>
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name,				\
 				innums, inbufs,				\
@@ -32,6 +32,6 @@
 		.out_bufs = outbufs,					\
 	};
 
-#include "fastrpc_adsp_listener.def"
+#include "fastrpc_apps_std.def"
 
 #undef DEFINE_REMOTE_PROCEDURE

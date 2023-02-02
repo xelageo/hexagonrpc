@@ -22,7 +22,7 @@
 #ifndef FASTRPC_CHRE_SLPI_H
 #define FASTRPC_CHRE_SLPI_H
 
-#include "fastrpc.h"
+#include <libhexagonrpc/fastrpc.h>
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name,				\
 				innums, inbufs,				\

@@ -19,15 +19,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <libhexagonrpc/fastrpc.h>
 #include <misc/fastrpc.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
-
 #include <stdio.h>
-
-#include "fastrpc.h"
 
 static void allocate_first_inbuf(const struct fastrpc_function_def_interp2 *def,
 				 struct fastrpc_invoke_args *arg,

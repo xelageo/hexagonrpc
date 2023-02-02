@@ -21,6 +21,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <libhexagonrpc/fastrpc.h>
 #include <misc/fastrpc.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -29,7 +30,6 @@
 #include <sys/ioctl.h>
 
 #include "aee_error.h"
-#include "fastrpc.h"
 #include "fastrpc_adsp_default_listener.h"
 #include "fastrpc_chre_slpi.h"
 #include "fastrpc_remotectl.h"

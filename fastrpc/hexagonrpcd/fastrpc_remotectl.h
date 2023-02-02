@@ -1,5 +1,5 @@
 /*
- * Remote processor control interface - function definitions
+ * Remote processor control interface - function data declarations
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,19 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "fastrpc.h"
+#ifndef FASTRPC_REMOTECTL_H
+#define FASTRPC_REMOTECTL_H
+
+#include <libhexagonrpc/fastrpc.h>
+
+#define REMOTECTL_HANDLE 0
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name,				\
 				innums, inbufs,				\
 				outnums, outbufs)			\
-	const struct fastrpc_function_def_interp2 name##_def = {	\
-		.msg_id = mid,						\
-		.in_nums = innums,					\
-		.in_bufs = inbufs,					\
-		.out_nums = outnums,					\
-		.out_bufs = outbufs,					\
-	};
+	extern const struct fastrpc_function_def_interp2 name##_def;
 
 #include "fastrpc_remotectl.def"
 
 #undef DEFINE_REMOTE_PROCEDURE
+
+#endif

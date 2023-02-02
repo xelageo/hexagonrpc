@@ -1,5 +1,5 @@
 /*
- * FastRPC reverse tunnel registration interface - function definitions
+ * Context Hub Runtime Environment interface - function definitions
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "fastrpc.h"
+#include <libhexagonrpc/fastrpc.h>
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name,				\
 				innums, inbufs,				\
@@ -32,6 +32,6 @@
 		.out_bufs = outbufs,					\
 	};
 
-#include "fastrpc_adsp_default_listener.def"
+#include "fastrpc_chre_slpi.def"
 
 #undef DEFINE_REMOTE_PROCEDURE

@@ -1,5 +1,5 @@
 /*
- * FastRPC API Replacement - context-based interface
+ * FastRPC reverse tunnel - header file
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,38 +19,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "fastrpc.h"
+#ifndef LISTENER_H
+#define LISTENER_H
 
-struct fastrpc_context *fastrpc_create_context(int fd, uint32_t handle)
-{
-	struct fastrpc_context *ctx;
+#include <libhexagonrpc/fastrpc.h>
+#include <stddef.h>
+#include <stdint.h>
 
-	ctx = malloc(sizeof(*ctx));
-	if (ctx == NULL)
-		return NULL;
+#include "iobuffer.h"
 
-	ctx->fd = fd;
-	ctx->handle = handle;
+struct fastrpc_function_impl {
+	const struct fastrpc_function_def_interp2 *def;
+	uint32_t (*impl)(const struct fastrpc_io_buffer *inbufs,
+			 struct fastrpc_io_buffer *outbufs);
+};
 
-	return ctx;
-}
+struct fastrpc_interface {
+	const char *name;
+	uint8_t n_procs;
+	struct fastrpc_function_impl procs[];
+};
 
-int vfastrpc(const struct fastrpc_function_def_interp2 *def,
-	     const struct fastrpc_context *ctx, va_list arg_list)
-{
-	return vfastrpc2(def, ctx->fd, ctx->handle, arg_list);
-}
+extern const struct fastrpc_interface localctl_interface;
 
-int fastrpc(const struct fastrpc_function_def_interp2 *def,
-	    const struct fastrpc_context *ctx, ...)
-{
-	va_list arg_list;
-	int ret;
+extern const struct fastrpc_interface apps_std_interface;
 
-	va_start(arg_list, ctx);
-	ret = vfastrpc(def, ctx, arg_list);
-	va_end(arg_list);
+extern const struct fastrpc_interface *fastrpc_listener_interfaces[];
+extern size_t fastrpc_listener_n_interfaces;
 
-	return ret;
-}
+int run_fastrpc_listener(int fd);
 
+#endif

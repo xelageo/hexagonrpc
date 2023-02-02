@@ -1,5 +1,5 @@
 /*
- * FastRPC operating system interface - function definitions
+ * Remote processor control interface - function definitions
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,7 +19,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "fastrpc.h"
+#include <libhexagonrpc/fastrpc.h>
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name,				\
 				innums, inbufs,				\
@@ -32,6 +32,6 @@
 		.out_bufs = outbufs,					\
 	};
 
-#include "fastrpc_apps_std.def"
+#include "fastrpc_remotectl.def"
 
 #undef DEFINE_REMOTE_PROCEDURE

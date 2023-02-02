@@ -1,5 +1,5 @@
 /*
- * FastRPC reverse tunnel main interface - function data declarations
+ * FastRPC operating system interface - function data declarations
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -19,19 +19,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FASTRPC_ADSP_LISTENER_H
-#define FASTRPC_ADSP_LISTENER_H
+#ifndef FASTRPC_APPS_STD_H
+#define FASTRPC_APPS_STD_H
 
-#include "fastrpc.h"
-
-#define ADSP_LISTENER_HANDLE 3
+#include <libhexagonrpc/fastrpc.h>
 
 #define DEFINE_REMOTE_PROCEDURE(mid, name,				\
 				innums, inbufs,				\
 				outnums, outbufs)			\
 	extern const struct fastrpc_function_def_interp2 name##_def;
 
-#include "fastrpc_adsp_listener.def"
+#include "fastrpc_apps_std.def"
 
 #undef DEFINE_REMOTE_PROCEDURE
 

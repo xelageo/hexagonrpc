@@ -19,11 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include <libhexagonrpc/fastrpc.h>
 #include <stddef.h>
 #include <stdio.h>
 
 #include "aee_error.h"
-#include "fastrpc.h"
 #include "fastrpc_adsp_listener.h"
 #include "fastrpc_remotectl.h"
 #include "iobuffer.h"
