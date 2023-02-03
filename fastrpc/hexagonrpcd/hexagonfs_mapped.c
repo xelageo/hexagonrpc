@@ -156,8 +156,11 @@ int mapped_readdir(struct hexagonfs_fd *fd, size_t size, char *out)
 	errno = 0;
 
 	ent = readdir(ctx->dir);
-	if (ent == NULL)
+	printf("readdir\n");
+	if (ent == NULL) {
+		out[0] = '\0';
 		return -errno;
+	}
 
 	strncpy(out, ent->d_name, size);
 	out[size - 1] = '\0';
