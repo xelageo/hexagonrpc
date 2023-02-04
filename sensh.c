@@ -268,13 +268,16 @@ void sns_send_attr_req(struct qrtr_client_ctx *ctx, SnsStdSuid *suid) {
 
 void sns_handle_suid_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len) {
 	SnsSuidEvent *event;
+	size_t i;
 
 	event = sns_suid_event__unpack(NULL, payload_len, payload);
 
-	if (event->suid != NULL)
-		printf("sensh: %s sensor found: %016lXI%016lX\n", event->data_type, event->suid->suid_high, event->suid->suid_low);
-	else
+	if (event->n_suid) {
+		for (i = 0; i < event->n_suid; i++)
+			printf("sensh: %s sensor found: %016lXI%016lX\n", event->data_type, event->suid[i]->suid_high, event->suid[i]->suid_low);
+	} else {
 		printf("sensh: lookup found no %s sensor\n", event->data_type);
+	}
 
 	sns_suid_event__free_unpacked(event, NULL);
 }

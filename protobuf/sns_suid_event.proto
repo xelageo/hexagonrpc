@@ -25,5 +25,5 @@ import "sns_std_suid.proto";
 
 message sns_suid_event {
 	required string data_type = 1;
-	optional sns_std_suid suid = 2;
+	repeated sns_std_suid suid = 2;
 }
