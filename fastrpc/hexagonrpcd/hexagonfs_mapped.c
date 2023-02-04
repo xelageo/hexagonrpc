@@ -203,7 +203,7 @@ static int mapped_stat(struct hexagonfs_fd *fd, struct stat *stats)
 			       | S_IRGRP | S_IXGRP
 			       | S_IROTH | S_IXOTH;
 	} else {
-		stats->st_mode = S_IRUSR | S_IRGRP | S_IROTH;
+		stats->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH;
 	}
 
 	stats->st_atim.tv_sec = phys.st_atim.tv_sec;
