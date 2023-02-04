@@ -216,6 +216,29 @@ static int mapped_stat(struct hexagonfs_fd *fd, struct stat *stats)
 	return 0;
 }
 
+/*
+ * This is the sysfs variant of the stat function.
+ *
+ * The remote processor expects a non-zero size if the file is not empty, even
+ * if a size cannot be determined without reading. The size is 256 on
+ * downstream kernels, so set it to that.
+ *
+ * Otherwise, the existing stat() function can be used.
+ */
+static int mapped_sysfs_stat(struct hexagonfs_fd *fd, struct stat *stats)
+{
+	int ret;
+
+	ret = mapped_stat(fd, stats);
+	if (ret)
+		return ret;
+
+	if (!(stats->st_mode & S_IFDIR))
+		stats->st_size = 256;
+
+	return 0;
+}
+
 struct hexagonfs_file_ops hexagonfs_mapped_ops = {
 	.close = mapped_close,
 	.from_dirent = mapped_from_dirent,
@@ -224,4 +247,14 @@ struct hexagonfs_file_ops hexagonfs_mapped_ops = {
 	.readdir = mapped_readdir,
 	.seek = mapped_seek,
 	.stat = mapped_stat,
+};
+
+struct hexagonfs_file_ops hexagonfs_mapped_sysfs_ops = {
+	.close = mapped_close,
+	.from_dirent = mapped_from_dirent,
+	.openat = mapped_openat,
+	.read = mapped_read,
+	.readdir = mapped_readdir,
+	.seek = mapped_seek,
+	.stat = mapped_sysfs_stat,
 };

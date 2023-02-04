@@ -45,11 +45,11 @@
 		.u.phys = path,			\
 	}
 
-#define DEFINE_SYSFILE(dirname, func)		\
-	(struct hexagonfs_dirent) {		\
-		.name = dirname,		\
-		.ops = &hexagonfs_sysfs_ops,	\
-		.u.func = func,			\
+#define DEFINE_SYSFILE(dirname, path)			\
+	(struct hexagonfs_dirent) {			\
+		.name = dirname,			\
+		.ops = &hexagonfs_mapped_sysfs_ops,	\
+		.u.phys = path,				\
 	}
 
 static struct hexagonfs_dirent root_dir = DEFINE_VIRT_DIR("/",
@@ -70,21 +70,21 @@ static struct hexagonfs_dirent root_dir = DEFINE_VIRT_DIR("/",
 	&DEFINE_VIRT_DIR("sys",
 		&DEFINE_VIRT_DIR("devices",
 			&DEFINE_VIRT_DIR("soc0",
-				&DEFINE_MAPPED("hw_platform",
-					       "/sys/kernel/debug/qcom_socinfo/hardware_platform"),
+				&DEFINE_SYSFILE("hw_platform",
+						"/sys/kernel/debug/qcom_socinfo/hardware_platform"),
 				&(struct hexagonfs_dirent) {
 					.name = "platform_subtype",
 					.ops = &hexagonfs_plat_subtype_name_ops,
 					.u.phys = "/sys/kernel/debug/qcom_socinfo/hardware_platform_subtype",
 				},
-				&DEFINE_MAPPED("platform_subtype_id",
-					       "/sys/kernel/debug/qcom_socinfo/hardware_platform_subtype"),
-				&DEFINE_MAPPED("platform_version",
-					       "/sys/kernel/debug/qcom_socinfo/platform_version"),
-				&DEFINE_MAPPED("revision",
-					       "/sys/devices/soc0/revision"),
-				&DEFINE_MAPPED("soc_id",
-					       "/sys/devices/soc0/soc_id"),
+				&DEFINE_SYSFILE("platform_subtype_id",
+						"/sys/kernel/debug/qcom_socinfo/hardware_platform_subtype"),
+				&DEFINE_SYSFILE("platform_version",
+						"/sys/kernel/debug/qcom_socinfo/platform_version"),
+				&DEFINE_SYSFILE("revision",
+						"/sys/devices/soc0/revision"),
+				&DEFINE_SYSFILE("soc_id",
+						"/sys/devices/soc0/soc_id"),
 				NULL,
 			),
 			NULL,
