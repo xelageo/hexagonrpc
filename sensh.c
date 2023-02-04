@@ -55,6 +55,7 @@
 #include "sns_suid_event.pb-c.h"
 #include "sns_client_request_msg.pb-c.h"
 #include "sns_client_event_msg.pb-c.h"
+#include "sns_proximity_event.pb-c.h"
 #include "sns_std_attr_req.pb-c.h"
 #include "sns_std_attr_event.pb-c.h"
 
@@ -123,6 +124,7 @@ static const char *attr_names[] = {
 void sns_handle_suid_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
+void sns_handle_proximity_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_unknown_event(struct qrtr_client_ctx *ctx, int msgid, const void *payload, size_t payload_len);
 void sns_handle_event(struct qrtr_client_ctx *ctx, const void *buf, size_t len);
 
@@ -223,6 +225,8 @@ void sns_handle_event(struct qrtr_client_ctx *ctx, const void *buf, size_t len) 
 			sns_handle_cal_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
 		else if (msg->events[i]->msg_id == 128) // SNS_STD_MSGID_SNS_STD_ATTR_EVENT
 			sns_handle_attr_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
+		else if (msg->events[i]->msg_id == 769)
+			sns_handle_proximity_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
 		else
 			sns_handle_unknown_event(ctx, msg->events[i]->msg_id, msg->events[i]->payload.data, msg->events[i]->payload.len);
 	}
@@ -282,6 +286,20 @@ void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size
 		printf("%02X", ((const char *) payload)[i]);
 
 	putchar('\n');
+}
+
+void sns_handle_proximity_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len) {
+	static const char *states[] = {
+		"far",
+		"near",
+	};
+	SnsProximityEvent *event;
+
+	event = sns_proximity_event__unpack(NULL, payload_len, payload);
+
+	printf("sensh: proximity data: %s, distance %u\n", states[event->unksym_near], event->unksym_distance);
+
+	sns_proximity_event__free_unpacked(event, NULL);
 }
 
 void sns_handle_unknown_event(struct qrtr_client_ctx *ctx, int msgid, const void *payload, size_t payload_len) {

@@ -25,8 +25,8 @@ LIBS = -lprotobuf-c -lqrtr
 CFLAGS = -Wall -Wextra -Wpedantic -Ibuild -I.
 PROTOC_C = protoc-c
 
-build/sensh: build/sensh.o build/qmi_sns_client.o build/sns_client_event_msg.pb-c.o build/sns_client_request_msg.pb-c.o build/sns_std_attr_event.pb-c.o build/sns_std_attr_req.pb-c.o build/sns_std_suid.pb-c.o build/sns_suid_event.pb-c.o build/sns_suid_req.pb-c.o
-	$(CC) -o build/sensh build/sensh.o build/qmi_sns_client.o build/sns_client_event_msg.pb-c.o build/sns_client_request_msg.pb-c.o build/sns_std_attr_event.pb-c.o build/sns_std_attr_req.pb-c.o build/sns_std_suid.pb-c.o build/sns_suid_event.pb-c.o build/sns_suid_req.pb-c.o $(LIBS)
+build/sensh: build/sensh.o build/qmi_sns_client.o build/sns_client_event_msg.pb-c.o build/sns_client_request_msg.pb-c.o build/sns_proximity_event.pb-c.o build/sns_std_attr_event.pb-c.o build/sns_std_attr_req.pb-c.o build/sns_std_suid.pb-c.o build/sns_suid_event.pb-c.o build/sns_suid_req.pb-c.o
+	$(CC) -o build/sensh build/sensh.o build/qmi_sns_client.o build/sns_client_event_msg.pb-c.o build/sns_client_request_msg.pb-c.o build/sns_proximity_event.pb-c.o build/sns_std_attr_event.pb-c.o build/sns_std_attr_req.pb-c.o build/sns_std_suid.pb-c.o build/sns_suid_event.pb-c.o build/sns_suid_req.pb-c.o $(LIBS)
 
 build/qmi_%.d: build/qmi_%.c
 	$(CC) $(CFLAGS) -MM -MT build/$*.o -o $@ $<
@@ -56,6 +56,7 @@ include build/sensh.d
 include build/qmi_sns_client.d
 include build/sns_client_event_msg.pb-c.d
 include build/sns_client_request_msg.pb-c.d
+include build/sns_proximity_event.pb-c.d
 include build/sns_std_attr_event.pb-c.d
 include build/sns_std_attr_req.pb-c.d
 include build/sns_std_suid.pb-c.d
