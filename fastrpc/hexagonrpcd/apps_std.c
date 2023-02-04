@@ -90,7 +90,9 @@ static uint32_t apps_std_fflush(const struct fastrpc_io_buffer *inbufs,
 {
 	uint32_t *fd = inbufs[0].p;
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("ignore fflush(%u)\n", *fd);
+#endif
 
 	memset(outbufs[0].p, 0, outbufs[0].s);
 
@@ -109,7 +111,9 @@ static uint32_t apps_std_fclose(const struct fastrpc_io_buffer *inbufs,
 		return AEE_EFAILED;
 	}
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("close(%u)\n", *first_in);
+#endif
 
 	return 0;
 }
@@ -127,9 +131,11 @@ static uint32_t apps_std_fread(const struct fastrpc_io_buffer *inbufs,
 		return AEE_EFAILED;
 	}
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("read(%u, %u) -> %ld\n", first_in->fd,
 					first_in->buf_size,
 					ret);
+#endif
 
 	first_out->written = ret;
 	first_out->is_eof = first_out->written < first_in->buf_size;
@@ -156,9 +162,11 @@ static uint32_t apps_std_fseek(const struct fastrpc_io_buffer *inbufs,
 		return AEE_EFAILED;
 	}
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("lseek(%u, %d, %d)\n", first_in->fd,
 				      first_in->pos,
 				      first_in->whence);
+#endif
 
 	return 0;
 }
@@ -214,9 +222,11 @@ static uint32_t apps_std_fopen_with_env(const struct fastrpc_io_buffer *inbufs,
 		return AEE_EFAILED;
 	}
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("openat($%s, %s) -> %d\n", (const char *) inbufs[1].p,
 					  (const char *) inbufs[3].p,
 					  fd);
+#endif
 
 	*out = fd;
 
@@ -249,7 +259,9 @@ static uint32_t apps_std_opendir(const struct fastrpc_io_buffer *inbufs,
 		return AEE_EFAILED;
 	}
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("opendir(%s) -> %d\n", (const char *) inbufs[1].p, ret);
+#endif
 
 	*dir_out = ret;
 
@@ -266,7 +278,9 @@ static uint32_t apps_std_closedir(const struct fastrpc_io_buffer *inbufs,
 	if (ret)
 		return AEE_EFAILED;
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("closedir(%ld)\n", *dir);
+#endif
 
 	return 0;
 }
@@ -289,7 +303,9 @@ static uint32_t apps_std_readdir(const struct fastrpc_io_buffer *inbufs,
 		return AEE_EFAILED;
 	}
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("readdir(%ld) -> %s\n", *dir, first_out->name);
+#endif
 
 	first_out->inode = 0;
 	first_out->is_eof = (*first_out->name == '\0');
@@ -350,7 +366,9 @@ static uint32_t apps_std_stat(const struct fastrpc_io_buffer *inbufs,
 
 	hexagonfs_close(fd);
 
+#ifdef HEXAGONRPC_VERBOSE
 	printf("stat(%s)\n", pathname);
+#endif
 
 	first_out->tsz = 0;
 
