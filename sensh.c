@@ -58,6 +58,7 @@
 #include "sns_proximity_event.pb-c.h"
 #include "sns_std_attr_req.pb-c.h"
 #include "sns_std_attr_event.pb-c.h"
+#include "sns_std_sensor_event.pb-c.h"
 
 #define SHELL_POLL 0
 #define QRTR_POLL 1
@@ -125,6 +126,7 @@ void sns_handle_suid_event(struct qrtr_client_ctx *ctx, const void *payload, siz
 void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_proximity_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
+void sns_handle_sensor_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_unknown_event(struct qrtr_client_ctx *ctx, int msgid, const void *payload, size_t payload_len);
 void sns_handle_event(struct qrtr_client_ctx *ctx, const void *buf, size_t len);
 
@@ -227,6 +229,8 @@ void sns_handle_event(struct qrtr_client_ctx *ctx, const void *buf, size_t len) 
 			sns_handle_attr_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
 		else if (msg->events[i]->msg_id == 769)
 			sns_handle_proximity_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
+		else if (msg->events[i]->msg_id == 1025) // SNS_STD_SENSOR_MSGID_SNS_STD_SENSOR_EVENT
+			sns_handle_sensor_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
 		else
 			sns_handle_unknown_event(ctx, msg->events[i]->msg_id, msg->events[i]->payload.data, msg->events[i]->payload.len);
 	}
@@ -303,6 +307,26 @@ void sns_handle_proximity_event(struct qrtr_client_ctx *ctx, const void *payload
 	printf("sensh: proximity data: %s, distance %u\n", states[event->unksym_near], event->unksym_distance);
 
 	sns_proximity_event__free_unpacked(event, NULL);
+}
+
+void sns_handle_sensor_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len) {
+	SnsStdSensorEvent *event;
+	int i;
+
+	event = sns_std_sensor_event__unpack(NULL, payload_len, payload);
+
+	printf("sensh: sensor data: ");
+
+	for (i = 0; i < event->n_data; i++) {
+		printf("%f", event->data[i]);
+
+		if (i + 1 < event->n_data)
+			printf(", ");
+	}
+
+	putchar('\n');
+
+	sns_std_sensor_event__free_unpacked(event, NULL);
 }
 
 void sns_handle_unknown_event(struct qrtr_client_ctx *ctx, int msgid, const void *payload, size_t payload_len) {
