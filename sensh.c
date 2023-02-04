@@ -214,7 +214,9 @@ void sns_handle_event(struct qrtr_client_ctx *ctx, const void *buf, size_t len) 
 	msg = sns_client_event_msg__unpack(NULL, len, buf);
 
 	for (i = 0; i < msg->n_events; i++) {
-		if (msg->events[i]->msg_id == 768) // SNS_SUID_MSGID_SNS_SUID_EVENT
+		if (msg->events[i]->msg_id == 768 // SNS_SUID_MSGID_SNS_SUID_EVENT
+		 && msg->suid->suid_low == 0xABABABABABABABABUL
+		 && msg->suid->suid_high == 0xABABABABABABABABUL)
 			sns_handle_suid_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
 		else if (msg->events[i]->msg_id == 1022) // SNS_CAL_MSGID_SNS_CAL_EVENT
 			sns_handle_cal_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
