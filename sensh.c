@@ -123,6 +123,7 @@ static const char *attr_names[] = {
 void sns_handle_suid_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
+void sns_handle_unknown_event(struct qrtr_client_ctx *ctx, int msgid, const void *payload, size_t payload_len);
 void sns_handle_event(struct qrtr_client_ctx *ctx, const void *buf, size_t len);
 
 void sns_qmi_send_request(struct qrtr_client_ctx *ctx, const void *protomsg, size_t protomsg_len) {
@@ -223,7 +224,7 @@ void sns_handle_event(struct qrtr_client_ctx *ctx, const void *buf, size_t len) 
 		else if (msg->events[i]->msg_id == 128) // SNS_STD_MSGID_SNS_STD_ATTR_EVENT
 			sns_handle_attr_event(ctx, msg->events[i]->payload.data, msg->events[i]->payload.len);
 		else
-			printf("sensh: received unhandled event %u\n", msg->events[i]->msg_id);
+			sns_handle_unknown_event(ctx, msg->events[i]->msg_id, msg->events[i]->payload.data, msg->events[i]->payload.len);
 	}
 
 	sns_client_event_msg__free_unpacked(msg, NULL);
@@ -275,7 +276,16 @@ void sns_handle_suid_event(struct qrtr_client_ctx *ctx, const void *payload, siz
 }
 
 void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len) {
-	printf("sensh: received cal message, raw: ");
+	printf("sensh: received cal event, raw: ");
+
+	for (size_t i = 0; i < payload_len; i++)
+		printf("%02X", ((const char *) payload)[i]);
+
+	putchar('\n');
+}
+
+void sns_handle_unknown_event(struct qrtr_client_ctx *ctx, int msgid, const void *payload, size_t payload_len) {
+	printf("sensh: received unknown event %d, raw: ", msgid);
 
 	for (size_t i = 0; i < payload_len; i++)
 		printf("%02X", ((const char *) payload)[i]);
