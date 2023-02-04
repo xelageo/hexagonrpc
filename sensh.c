@@ -421,12 +421,14 @@ static void handle_sensor_message(struct qrtr_client_ctx *ctx) {
 
 		ctx->connected = 0;
 	} else if (pkt.type == QRTR_TYPE_NEW_SERVER) {
-		printf("sensh: sensor core found\n");
+		if (pkt.service == 400) {
+			printf("sensh: sensor core found\n");
 
-		ctx->node = pkt.node;
-		ctx->port = pkt.port;
-		ctx->connected = 1;
-		ctx->txn_id = 1;
+			ctx->node = pkt.node;
+			ctx->port = pkt.port;
+			ctx->connected = 1;
+			ctx->txn_id = 1;
+		}
 	} else if (pkt.type == QRTR_TYPE_DATA) {
 		sns_qmi_handle_message(ctx, &pkt);
 	} else {
