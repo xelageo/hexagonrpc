@@ -90,6 +90,36 @@ static SnsStdSuid lookup_suid = {
 	.suid_high = 0xABABABABABABABABUL,
 };
 
+static const char *attr_names[] = {
+	[0] = "name",
+	[1] = "vendor",
+	[2] = "type",
+	[3] = "available",
+	[4] = "version",
+	[5] = "api",
+	[6] = "rates",
+	[7] = "resolutions",
+	[8] = "fifo size",
+	[9] = "active current",
+	[10] = "sleep current",
+	[11] = "ranges",
+	[12] = "operating modes",
+	[13] = "dri",
+	[14] = "stream sync",
+	[15] = "event size",
+	[16] = "stream type",
+	[17] = "dynamic",
+	[18] = "hardware identifier",
+	[19] = "rigid body",
+	[20] = "placement",
+	[21] = "physical sensor",
+	[22] = "physical sensor tests",
+	[23] = "selected resolution",
+	[24] = "selected range",
+	[25] = "low latency rates",
+	[26] = "passive request",
+};
+
 void sns_handle_suid_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
 void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len);
@@ -253,42 +283,20 @@ void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size
 
 void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len) {
 	SnsStdAttrEvent *event;
+	const char *attr_name;
 
 	event = sns_std_attr_event__unpack(NULL, payload_len, payload);
 
 	for (int i = 0; i < event->n_attrs; i++) {
-		switch (event->attrs[i]->attr_id) {
-			case 0:
-				printf("sensh: name: ");
-				break;
-			case 1:
-				printf("sensh: vendor: ");
-				break;
-			case 2:
-				printf("sensh: type: ");
-				break;
-			case 3:
-				printf("sensh: available: ");
-				break;
-			case 4:
-				printf("sensh: version: ");
-				break;
-			case 5:
-				printf("sensh: api: ");
-				break;
-			case 6:
-				printf("sensh: rates: ");
-				break;
-			case 16:
-				printf("sensh: stream type: ");
-				break;
-			case 21:
-				printf("sensh: physical sensor: ");
-				break;
-			default:
-				printf("sensh: unknown attr %u: ", event->attrs[i]->attr_id);
-				break;
-		}
+		if (event->attrs[i]->attr_id < 27)
+			attr_name = attr_names[event->attrs[i]->attr_id];
+		else
+			attr_name = NULL;
+
+		if (attr_name != NULL)
+			printf("sensh: %s: ", attr_name);
+		else
+			printf("sensh: unknown attr %u: ", event->attrs[i]->attr_id);
 
 		for (int j = 0; j < event->attrs[i]->value->n_values; j++) {
 			if (event->attrs[i]->value->values[j]->subtype)
