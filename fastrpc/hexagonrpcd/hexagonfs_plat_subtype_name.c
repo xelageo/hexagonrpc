@@ -83,7 +83,7 @@ static int plat_subtype_stat(struct hexagonfs_fd *fd, struct stat *stats)
 	stats->st_ino = 0;
 	stats->st_nlink = 0;
 
-	stats->st_mode = S_IRUSR | S_IRGRP | S_IROTH;
+	stats->st_mode = S_IFREG | S_IRUSR | S_IRGRP | S_IROTH;
 
 	stats->st_atim.tv_sec = 0;
 	stats->st_atim.tv_nsec = 0;
