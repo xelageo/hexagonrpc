@@ -173,12 +173,21 @@ static uint32_t apps_std_fopen_with_env(const struct fastrpc_io_buffer *inbufs,
 		uint32_t mode_len;
 	} *first_in = inbufs[0].p;
 	uint32_t *out = outbufs[0].p;
+	char rw_mode;
 	int ret, dirfd, fd;
 
 	// The name and environment variable must also be NULL-terminated
 	if (((const char *) inbufs[1].p)[first_in->envvarname_len - 1] != 0
-	 || ((const char *) inbufs[3].p)[first_in->name_len - 1] != 0)
+	 || ((const char *) inbufs[3].p)[first_in->name_len - 1] != 0
+	 || ((const char *) inbufs[4].p)[first_in->mode_len - 1] != 0)
 		return AEE_EBADPARM;
+
+	rw_mode = ((const char *) inbufs[4].p)[0];
+	if (rw_mode == 'w' || rw_mode == 'a') {
+		fprintf(stderr, "Tried to open %s for writing\n",
+				(const char *) inbufs[3].p);
+		return AEE_EUNSUPPORTED;
+	}
 
 	ret = open_dirs();
 	if (ret) {
