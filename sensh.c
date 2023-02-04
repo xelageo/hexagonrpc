@@ -281,6 +281,27 @@ void sns_handle_cal_event(struct qrtr_client_ctx *ctx, const void *payload, size
 	putchar('\n');
 }
 
+void sns_attr_print(UnksymAttrValueArray *attr) {
+	for (int j = 0; j < attr->n_values; j++) {
+		if (attr->values[j]->subtype) {
+			printf("(subtype: ");
+			sns_attr_print(attr->values[j]->subtype);
+			putchar(')');
+		} else if (attr->values[j]->str) {
+			printf("%s", attr->values[j]->str);
+		} else if (attr->values[j]->has_flt) {
+			printf("%f", attr->values[j]->flt);
+		} else if (attr->values[j]->has_sint) {
+			printf("%lu", attr->values[j]->sint);
+		} else if (attr->values[j]->has_boolean) {
+			printf("%u", attr->values[j]->boolean);
+		}
+
+		if (j + 1 < attr->n_values)
+			printf(", ");
+	}
+}
+
 void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, size_t payload_len) {
 	SnsStdAttrEvent *event;
 	const char *attr_name;
@@ -298,21 +319,7 @@ void sns_handle_attr_event(struct qrtr_client_ctx *ctx, const void *payload, siz
 		else
 			printf("sensh: unknown attr %u: ", event->attrs[i]->attr_id);
 
-		for (int j = 0; j < event->attrs[i]->value->n_values; j++) {
-			if (event->attrs[i]->value->values[j]->subtype)
-				printf("(subtype)");
-			else if (event->attrs[i]->value->values[j]->str)
-				printf("%s", event->attrs[i]->value->values[j]->str);
-			else if (event->attrs[i]->value->values[j]->has_flt)
-				printf("%f", event->attrs[i]->value->values[j]->flt);
-			else if (event->attrs[i]->value->values[j]->has_sint)
-				printf("%lu", event->attrs[i]->value->values[j]->sint);
-			else if (event->attrs[i]->value->values[j]->has_boolean)
-				printf("%u", event->attrs[i]->value->values[j]->boolean);
-
-			if (j + 1 < event->attrs[i]->value->n_values)
-				printf(", ");
-		}
+		sns_attr_print(event->attrs[i]->value);
 
 		putchar('\n');
 	}
