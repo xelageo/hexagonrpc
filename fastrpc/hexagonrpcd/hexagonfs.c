@@ -283,7 +283,7 @@ int hexagonfs_close(int fileno)
 {
 	struct hexagonfs_fd *fd;
 
-	if (fileno >= HEXAGONFS_MAX_FD)
+	if (fileno < 0 || fileno >= HEXAGONFS_MAX_FD)
 		return -EBADF;
 
 	fd = fds[fileno];
@@ -302,7 +302,7 @@ int hexagonfs_lseek(int fileno, off_t off, int whence)
 {
 	struct hexagonfs_fd *fd;
 
-	if (fileno >= HEXAGONFS_MAX_FD)
+	if (fileno < 0 || fileno >= HEXAGONFS_MAX_FD)
 		return -EBADF;
 
 	fd = fds[fileno];
@@ -319,7 +319,7 @@ ssize_t hexagonfs_read(int fileno, size_t size, void *ptr)
 {
 	struct hexagonfs_fd *fd;
 
-	if (fileno >= HEXAGONFS_MAX_FD)
+	if (fileno < 0 || fileno >= HEXAGONFS_MAX_FD)
 		return -EBADF;
 
 	fd = fds[fileno];
@@ -336,7 +336,7 @@ int hexagonfs_readdir(int fileno, size_t ent_size, char *ent)
 {
 	struct hexagonfs_fd *fd;
 
-	if (fileno >= HEXAGONFS_MAX_FD)
+	if (fileno < 0 || fileno >= HEXAGONFS_MAX_FD)
 		return -EBADF;
 
 	fd = fds[fileno];
@@ -353,7 +353,7 @@ int hexagonfs_fstat(int fileno, struct stat *stats)
 {
 	struct hexagonfs_fd *fd;
 
-	if (fileno >= HEXAGONFS_MAX_FD)
+	if (fileno < 0 || fileno >= HEXAGONFS_MAX_FD)
 		return -EBADF;
 
 	fd = fds[fileno];
