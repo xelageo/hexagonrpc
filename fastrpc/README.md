@@ -117,8 +117,8 @@ The reverse tunnel's `apps_std` interface serves files to the remote processor.
 These files are searched for in:
 
     Physical file/dir			Android file/dir
-    /etc/qcom/sensors/sns_reg.conf		/vendor/etc/sensors/sns_reg_config
-    /etc/qcom/sensors/config		/vendor/etc/sensors/config
+    /etc/qcom/sns_reg.conf			/vendor/etc/sensors/sns_reg_config
+    /etc/qcom/sensors.d			/vendor/etc/sensors/config
     /var/lib/qcom/sensors			/mnt/vendor/persist/sensors/registry
     /usr/lib/qcom/adsp			/vendor/dsp/adsp
 
