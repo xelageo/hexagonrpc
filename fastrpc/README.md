@@ -121,6 +121,7 @@ These files are searched for in:
     /etc/qcom/sensors.d			/vendor/etc/sensors/config
     /var/lib/qcom/sensors			/mnt/vendor/persist/sensors/registry
     /usr/lib/qcom/adsp			/vendor/dsp/adsp
+    /usr/lib/qcom/adsp/avs			/vendor/etc/acdbdata
 
 These files and directories should be populated with files from your device's
 Android firmware.
