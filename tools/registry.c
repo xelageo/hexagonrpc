@@ -23,8 +23,7 @@
  * Typical usage with HexagonFS default physical filesystem structure and
  * mainline Linux:
  *
- * registry -p $(< /sys/kernel/debug/qcom_socinfo/hardware_platform) \
- *	    -s $(< /sys/devices/soc0/soc_id) \
+ * registry -p OEM -s $(< /sys/devices/soc0/soc_id) \
  *	    /etc/qcom/sensors.d/ /var/lib/qcom/sensors/registry/
  */
 
