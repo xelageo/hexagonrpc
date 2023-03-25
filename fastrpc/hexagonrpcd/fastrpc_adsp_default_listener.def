@@ -19,4 +19,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-DEFINE_REMOTE_PROCEDURE(0, adsp_default_listener_register, 0, 0, 0, 0)
+#ifndef INTERFACE_ADSP_DEFAULT_LISTENER_DEF
+#define INTERFACE_ADSP_DEFAULT_LISTENER_DEF
+
+#include <libhexagonrpc/interface.h>
+
+HEXAGONRPC_DEFINE_REMOTE_METHOD(0, adsp_default_listener_register, 0, 0, 0, 0)
+
+#endif /* INTERFACE_ADSP_DEFAULT_LISTENER_DEF */

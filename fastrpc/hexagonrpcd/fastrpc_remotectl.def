@@ -19,5 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-DEFINE_REMOTE_PROCEDURE(0, remotectl_open, 0, 1, 2, 1)
-DEFINE_REMOTE_PROCEDURE(1, remotectl_close, 1, 0, 1, 1)
+#ifndef INTERFACE_REMOTECTL_DEF
+#define INTERFACE_REMOTECTL_DEF
+
+#include <libhexagonrpc/interface.h>
+
+HEXAGONRPC_DEFINE_REMOTE_METHOD(0, remotectl_open, 0, 1, 2, 1)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(1, remotectl_close, 1, 0, 1, 1)
+
+#endif /* INTERFACE_REMOTECTL_DEF */

@@ -19,5 +19,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-DEFINE_REMOTE_PROCEDURE(0, chre_slpi_start_thread, 0, 0, 0, 0)
-DEFINE_REMOTE_PROCEDURE(1, chre_slpi_wait_on_thread_exit, 0, 0, 0, 0)
+#ifndef INTERFACE_CHRE_SLPI_DEF
+#define INTERFACE_CHRE_SLPI_DEF
+
+#include <libhexagonrpc/interface.h>
+
+HEXAGONRPC_DEFINE_REMOTE_METHOD(0, chre_slpi_start_thread, 0, 0, 0, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(1, chre_slpi_wait_on_thread_exit, 0, 0, 0, 0)
+
+#endif /* INTERFACE_CHRE_SLPI_DEF */

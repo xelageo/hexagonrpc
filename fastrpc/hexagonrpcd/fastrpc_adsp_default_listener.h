@@ -19,18 +19,4 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef FASTRPC_ADSP_DEFAULT_LISTENER_H
-#define FASTRPC_ADSP_DEFAULT_LISTENER_H
-
-#include <libhexagonrpc/fastrpc.h>
-
-#define DEFINE_REMOTE_PROCEDURE(mid, name,				\
-				innums, inbufs,				\
-				outnums, outbufs)			\
-	extern const struct fastrpc_function_def_interp2 name##_def;
-
 #include "fastrpc_adsp_default_listener.def"
-
-#undef DEFINE_REMOTE_PROCEDURE
-
-#endif

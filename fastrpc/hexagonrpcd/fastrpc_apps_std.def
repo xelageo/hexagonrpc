@@ -19,13 +19,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-DEFINE_REMOTE_PROCEDURE(1, apps_std_freopen, 1, 0, 1, 1)
-DEFINE_REMOTE_PROCEDURE(2, apps_std_fflush, 8, 0, 0, 0)
-DEFINE_REMOTE_PROCEDURE(3, apps_std_fclose, 1, 0, 0, 0)
-DEFINE_REMOTE_PROCEDURE(4, apps_std_fread, 1, 0, 2, 1)
-DEFINE_REMOTE_PROCEDURE(9, apps_std_fseek, 3, 0, 0, 0)
-DEFINE_REMOTE_PROCEDURE(19, apps_std_fopen_with_env, 0, 4, 1, 0)
-DEFINE_REMOTE_PROCEDURE(26, apps_std_opendir, 0, 1, 2, 0)
-DEFINE_REMOTE_PROCEDURE(27, apps_std_closedir, 2, 0, 0, 0)
-DEFINE_REMOTE_PROCEDURE(28, apps_std_readdir, 2, 0, 66, 0)
-DEFINE_REMOTE_PROCEDURE(31, apps_std_stat, 1, 1, 24, 0)
+#ifndef INTERFACE_APPS_STD_DEF
+#define INTERFACE_APPS_STD_DEF
+
+#include <libhexagonrpc/interface.h>
+
+HEXAGONRPC_DEFINE_REMOTE_METHOD(1, apps_std_freopen, 1, 0, 1, 1)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(2, apps_std_fflush, 8, 0, 0, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(3, apps_std_fclose, 1, 0, 0, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(4, apps_std_fread, 1, 0, 2, 1)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(9, apps_std_fseek, 3, 0, 0, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(19, apps_std_fopen_with_env, 0, 4, 1, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(26, apps_std_opendir, 0, 1, 2, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(27, apps_std_closedir, 2, 0, 0, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(28, apps_std_readdir, 2, 0, 66, 0)
+HEXAGONRPC_DEFINE_REMOTE_METHOD(31, apps_std_stat, 1, 1, 24, 0)
+
+#endif /* INTERFACE_APPS_STD_DEF */
