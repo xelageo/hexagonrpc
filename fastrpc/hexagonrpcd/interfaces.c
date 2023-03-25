@@ -21,8 +21,8 @@
 
 #define HEXAGONRPC_BUILD_METHOD_DEFINITIONS 1
 
-#include "fastrpc_adsp_default_listener.def"
-#include "fastrpc_apps_std.def"
-#include "fastrpc_adsp_listener.def"
-#include "fastrpc_chre_slpi.def"
-#include "fastrpc_remotectl.def"
+#include "interfaces/adsp_default_listener.def"
+#include "interfaces/apps_std.def"
+#include "interfaces/adsp_listener.def"
+#include "interfaces/chre_slpi.def"
+#include "interfaces/remotectl.def"

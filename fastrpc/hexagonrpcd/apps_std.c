@@ -28,7 +28,7 @@
 #include <unistd.h>
 
 #include "aee_error.h"
-#include "fastrpc_apps_std.h"
+#include "interfaces/apps_std.def"
 #include "hexagonfs.h"
 #include "iobuffer.h"
 #include "listener.h"

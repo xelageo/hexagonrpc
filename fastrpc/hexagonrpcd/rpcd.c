@@ -30,9 +30,9 @@
 #include <sys/ioctl.h>
 
 #include "aee_error.h"
-#include "fastrpc_adsp_default_listener.h"
-#include "fastrpc_chre_slpi.h"
-#include "fastrpc_remotectl.h"
+#include "interfaces/adsp_default_listener.def"
+#include "interfaces/chre_slpi.def"
+#include "interfaces/remotectl.def"
 #include "listener.h"
 
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))

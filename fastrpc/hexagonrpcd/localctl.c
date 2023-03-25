@@ -25,7 +25,7 @@
 #include <string.h>
 
 #include "aee_error.h"
-#include "fastrpc_remotectl.h"
+#include "interfaces/remotectl.def"
 #include "iobuffer.h"
 #include "listener.h"
 
