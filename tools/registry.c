@@ -36,7 +36,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#if defined(__linux__)
+#ifndef O_SEARCH
 #define O_SEARCH O_RDONLY
 #endif
 
