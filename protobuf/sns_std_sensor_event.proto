@@ -21,8 +21,6 @@
 
 syntax = "proto2";
 
-import "sns_std_suid.proto";
-
 message sns_std_sensor_event {
 	repeated float data = 1;
 	optional int32 unkfield_10 = 2;
