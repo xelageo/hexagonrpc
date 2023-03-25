@@ -10,15 +10,21 @@ which lines were entered by the user.
 
  - gcc
  - libqrtr
- - make
+ - meson or make
  - protobuf-c
  - qmic (https://github.com/andersson/qmic)
 
 # Installation
 
-There is a Makefile to compile this:
+This can be compiled using Meson:
 
-    $ make
+    $ meson setup build
+    $ ninja -C build
+
+There is also a Makefile to compile this, if you can get it to work:
+
+    $ mkdir build
+    $ make -k
 
 # Usage
 
