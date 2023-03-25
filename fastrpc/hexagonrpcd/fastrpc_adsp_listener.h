@@ -19,8 +19,4 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ADSP_LISTENER_HANDLE
-#define ADSP_LISTENER_HANDLE 3
-#endif
-
 #include "fastrpc_adsp_listener.def"

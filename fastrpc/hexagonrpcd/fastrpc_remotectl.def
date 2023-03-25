@@ -24,6 +24,8 @@
 
 #include <libhexagonrpc/interface.h>
 
+#define REMOTECTL_HANDLE 0
+
 HEXAGONRPC_DEFINE_REMOTE_METHOD(0, remotectl_open, 0, 1, 2, 1)
 HEXAGONRPC_DEFINE_REMOTE_METHOD(1, remotectl_close, 1, 0, 1, 1)
 

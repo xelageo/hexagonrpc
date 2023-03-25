@@ -19,8 +19,4 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef REMOTECTL_HANDLE
-#define REMOTECTL_HANDLE 0
-#endif
-
 #include "fastrpc_remotectl.def"
