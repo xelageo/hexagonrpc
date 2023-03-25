@@ -1,5 +1,5 @@
 /*
- * FastRPC reverse tunnel registration interface - function definitions
+ * FastRPC interface list for building method definitions
  *
  * Copyright (C) 2023 Richard Acayan
  *
@@ -20,4 +20,9 @@
  */
 
 #define HEXAGONRPC_BUILD_METHOD_DEFINITIONS 1
+
 #include "fastrpc_adsp_default_listener.def"
+#include "fastrpc_apps_std.def"
+#include "fastrpc_adsp_listener.def"
+#include "fastrpc_chre_slpi.def"
+#include "fastrpc_remotectl.def"
