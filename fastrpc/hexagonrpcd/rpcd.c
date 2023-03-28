@@ -25,6 +25,7 @@
 #include <misc/fastrpc.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
@@ -173,20 +174,49 @@ err:
 	return NULL;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
 	pthread_t chre_thread, listener_thread;
-	int fd, ret;
+	char *fastrpc_node = NULL;
+	int fd, ret, opt;
+	bool attach_sns = false;
 
-	fd = open("/dev/fastrpc-adsp", O_RDWR);
-	if (fd == -1) {
-		fprintf(stderr, "Could not open /dev/fastrpc-adsp: %s\n", strerror(errno));
-		return 1;
+	while ((opt = getopt(argc, argv, "sf:")) != -1) {
+		switch (opt) {
+			case 'f':
+				fastrpc_node = optarg;
+				break;
+			case 's':
+				attach_sns = true;
+				break;
+			default:
+				printf("Usage: %s [-s] [-f FastRPC node]\n\n", argv[0]);
+				printf("Qualcomm Hexagon filesystem daemon\n\n");
+				printf("\t-f\tFastRPC node to attach to\n");
+				printf("\t-s\tUse INIT_ATTACH_SNS instead of INIT_ATTACH ioctl\n");
+				return 1;
+		}
 	}
 
-	ret = ioctl(fd, FASTRPC_IOCTL_INIT_ATTACH_SNS, NULL);
+	if (!fastrpc_node) {
+		fprintf(stderr, "Invalid FastRPC node: %s\n", fastrpc_node);
+		return 2;
+	}
+
+	printf("Starting %s (%s) on %s\n", argv[0], attach_sns? "INIT_ATTACH_SNS": "INIT_ATTACH", fastrpc_node);
+
+	fd = open(fastrpc_node, O_RDWR);
+	if (fd < 0) {
+		fprintf(stderr, "Could not open FastRPC node (%s): %s\n", fastrpc_node, strerror(errno));
+		return 3;
+	}
+
+	if (attach_sns)
+		ret = ioctl(fd, FASTRPC_IOCTL_INIT_ATTACH_SNS, NULL);
+	else
+		ret = ioctl(fd, FASTRPC_IOCTL_INIT_ATTACH, NULL);
 	if (ret) {
-		printf("Could not ioctl /dev/fastrpc-adsp: %s\n", strerror(errno));
+		fprintf(stderr, "Could not attach to FastRPC node: %s\n", strerror(errno));
 		goto err_close_dev;
 	}
 
@@ -202,5 +232,5 @@ int main()
 
 err_close_dev:
 	close(fd);
-	return 1;
+	return 4;
 }
