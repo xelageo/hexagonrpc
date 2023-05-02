@@ -247,7 +247,7 @@ int main(int argc, char **argv)
 	DIR *indir;
 	int indirfd, outdirfd;
 	struct config_filter filter;
-	char opt;
+	int opt;
 
 	filter.hw_platform = NULL;
 	filter.soc_id = NULL;
