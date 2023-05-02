@@ -55,29 +55,21 @@ static int rootfd = -EBADF;
 static int adsp_avs_cfg_dirfd = -EBADF;
 static int adsp_library_dirfd = -EBADF;
 
-static int open_dirs()
+static void open_dirs()
 {
 	if (rootfd < 0) {
 		rootfd = hexagonfs_open_root();
 		if (rootfd < 0)
-			return rootfd;
+			return;
 	}
 
-	if (adsp_avs_cfg_dirfd < 0) {
+	if (adsp_avs_cfg_dirfd < 0)
 		adsp_avs_cfg_dirfd = hexagonfs_openat(rootfd, rootfd,
 						      "/usr/lib/qcom/adsp/avs/");
-		if (adsp_avs_cfg_dirfd < 0)
-			return adsp_avs_cfg_dirfd;
-	}
 
-	if (adsp_library_dirfd < 0) {
+	if (adsp_library_dirfd < 0)
 		adsp_library_dirfd = hexagonfs_openat(rootfd, rootfd,
 						      "/usr/lib/qcom/adsp/");
-		if (adsp_library_dirfd < 0)
-			return adsp_library_dirfd;
-	}
-
-	return 0;
 }
 
 /*
@@ -182,7 +174,7 @@ static uint32_t apps_std_fopen_with_env(const struct fastrpc_io_buffer *inbufs,
 	} *first_in = inbufs[0].p;
 	uint32_t *out = outbufs[0].p;
 	char rw_mode;
-	int ret, dirfd, fd;
+	int dirfd, fd;
 
 	// The name and environment variable must also be NULL-terminated
 	if (((const char *) inbufs[1].p)[first_in->envvarname_len - 1] != 0
@@ -197,10 +189,11 @@ static uint32_t apps_std_fopen_with_env(const struct fastrpc_io_buffer *inbufs,
 		return AEE_EUNSUPPORTED;
 	}
 
-	ret = open_dirs();
-	if (ret) {
-		fprintf(stderr, "Could not open directories: %s\n",
-				strerror(-ret));
+	open_dirs();
+
+	if (rootfd < 0) {
+		fprintf(stderr, "Could not open virtual root directory: %s\n",
+				strerror(-rootfd));
 		return AEE_EFAILED;
 	}
 
@@ -212,6 +205,12 @@ static uint32_t apps_std_fopen_with_env(const struct fastrpc_io_buffer *inbufs,
 		fprintf(stderr, "Unknown search directory %s\n",
 				(const char *) inbufs[1].p);
 		return AEE_EBADPARM;
+	}
+
+	if (dirfd < 0) {
+		fprintf(stderr, "Could not open virtual %s: %s\n",
+				(const char *) inbufs[1].p, strerror(-dirfd));
+		return AEE_EFAILED;
 	}
 
 	fd = hexagonfs_openat(rootfd, dirfd, inbufs[3].p);
@@ -244,10 +243,11 @@ static uint32_t apps_std_opendir(const struct fastrpc_io_buffer *inbufs,
 	if (((const char *) inbufs[1].p)[*namelen - 1] != 0)
 		return AEE_EBADPARM;
 
-	ret = open_dirs();
-	if (ret) {
-		fprintf(stderr, "Could not open directories: %s\n",
-				strerror(-ret));
+	open_dirs();
+
+	if (rootfd < 0) {
+		fprintf(stderr, "Could not open virtual root directory: %s\n",
+				strerror(-rootfd));
 		return AEE_EFAILED;
 	}
 
@@ -343,11 +343,12 @@ static uint32_t apps_std_stat(const struct fastrpc_io_buffer *inbufs,
 	memcpy(pathname, inbufs[1].p, first_in->pathname_len);
 	pathname[first_in->pathname_len] = 0;
 
-	ret = open_dirs();
-	if (ret) {
-		fprintf(stderr, "Could not open directories: %s\n",
-				strerror(-ret));
-		goto err_free_pathname;
+	open_dirs();
+
+	if (rootfd < 0) {
+		fprintf(stderr, "Could not open virtual root directory: %s\n",
+				strerror(-rootfd));
+		return AEE_EFAILED;
 	}
 
 	fd = hexagonfs_openat(rootfd, rootfd, pathname);
