@@ -1,4 +1,4 @@
 all: registry
 
 registry: registry.c
-	gcc -ljson-c -o registry registry.c
+	gcc -o registry registry.c -ljson-c
