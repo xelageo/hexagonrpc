@@ -1,4 +1,4 @@
-all: registry
+all: sscregistrygen
 
-registry: registry.c
-	gcc -o registry registry.c -ljson-c
+sscregistrygen: sscregistrygen.c
+	gcc -o sscregistrygen sscregistrygen.c -ljson-c
