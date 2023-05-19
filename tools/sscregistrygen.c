@@ -187,10 +187,10 @@ bool check_config_filter(struct config_filter *filter, struct json_object *confi
 	if (filter->soc_id != NULL
 	 && soc_id != NULL
 	 && json_object_get_type(soc_id) == json_type_array) {
-		len = json_object_array_length(hw_plat);
+		len = json_object_array_length(soc_id);
 
 		for (i = 0; i < len; i++) {
-			curr = json_object_array_get_idx(hw_plat, i);
+			curr = json_object_array_get_idx(soc_id, i);
 			str = json_object_get_string(curr);
 			if (!strcmp(str, filter->soc_id))
 				break;
