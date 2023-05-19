@@ -275,24 +275,24 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	indir = opendir(argv[1]);
+	indir = opendir(argv[optind]);
 	if (indir == NULL) {
 		fprintf(stderr, "Could not open %s: %s\n",
-				argv[1], strerror(-errno));
+				argv[optind], strerror(-errno));
 		return 1;
 	}
 
-	indirfd = open(argv[1], O_SEARCH | O_DIRECTORY);
+	indirfd = open(argv[optind], O_SEARCH | O_DIRECTORY);
 	if (indirfd == -1) {
 		fprintf(stderr, "Could not open %s: %s\n",
-				argv[1], strerror(-errno));
+				argv[optind], strerror(-errno));
 		return 1;
 	}
 
-	outdirfd = open(argv[2], O_SEARCH | O_DIRECTORY);
+	outdirfd = open(argv[optind + 1], O_SEARCH | O_DIRECTORY);
 	if (outdirfd == -1) {
 		fprintf(stderr, "Could not open %s: %s\n",
-				argv[2], strerror(-errno));
+				argv[optind + 1], strerror(-errno));
 		return 1;
 	}
 
