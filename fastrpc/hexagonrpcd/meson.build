@@ -14,5 +14,5 @@ executable('hexagonrpcd',
   include_directories : include,
   install : true,
   link_with : libhexagonrpc,
-  install_dir : get_option('sbindir'),
+  install_dir : get_option('bindir'),
 )
