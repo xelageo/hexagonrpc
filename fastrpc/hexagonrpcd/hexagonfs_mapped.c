@@ -126,7 +126,7 @@ err:
 	return ret;
 }
 
-ssize_t mapped_read(struct hexagonfs_fd *fd, size_t size, void *out)
+static ssize_t mapped_read(struct hexagonfs_fd *fd, size_t size, void *out)
 {
 	struct mapped_ctx *ctx = fd->data;
 	ssize_t ret;
@@ -138,7 +138,7 @@ ssize_t mapped_read(struct hexagonfs_fd *fd, size_t size, void *out)
 	return ret;
 }
 
-int mapped_readdir(struct hexagonfs_fd *fd, size_t size, char *out)
+static int mapped_readdir(struct hexagonfs_fd *fd, size_t size, char *out)
 {
 	struct mapped_ctx *ctx = fd->data;
 	struct dirent *ent;
