@@ -69,7 +69,6 @@ static int virt_dir_openat(struct hexagonfs_fd *dir,
 	if (fd == NULL)
 		return -ENOMEM;
 
-	fd->off = 0;
 	fd->up = dir;
 	fd->ops = ent->ops;
 

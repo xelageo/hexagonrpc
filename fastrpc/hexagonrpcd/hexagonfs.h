@@ -54,7 +54,6 @@ struct hexagonfs_dirent {
 };
 
 struct hexagonfs_fd {
-	off_t off;
 	bool is_assigned;
 	struct hexagonfs_fd *up;
 	void *data;

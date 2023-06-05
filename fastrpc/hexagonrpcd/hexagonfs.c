@@ -221,7 +221,6 @@ int hexagonfs_open_root()
 	if (fd == NULL)
 		return -ENOMEM;
 
-	fd->off = 0;
 	fd->is_assigned = false;
 	fd->up = NULL;
 	fd->ops = root_dir.ops;
