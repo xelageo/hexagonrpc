@@ -49,7 +49,8 @@ struct remotectl_open_return {
  *
  * The -5 error was taken from Android code.
  */
-static uint32_t localctl_open(const struct fastrpc_io_buffer *inbufs,
+static uint32_t localctl_open(void *data,
+			      const struct fastrpc_io_buffer *inbufs,
 			      struct fastrpc_io_buffer *outbufs)
 {
 	const struct remotectl_open_invoke *first_in = inbufs[0].p;
@@ -84,7 +85,8 @@ static uint32_t localctl_open(const struct fastrpc_io_buffer *inbufs,
  * using an interface. It does not need to do anything because interfaces are
  * static.
  */
-static uint32_t localctl_close(const struct fastrpc_io_buffer *inbufs,
+static uint32_t localctl_close(void *data,
+			       const struct fastrpc_io_buffer *inbufs,
 			       struct fastrpc_io_buffer *outbufs)
 {
 	uint32_t *dlerr_size = inbufs[0].p;

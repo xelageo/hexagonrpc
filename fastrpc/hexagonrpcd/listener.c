@@ -266,7 +266,8 @@ static int invoke_requested_procedure(uint32_t handle,
 		return 1;
 	}
 
-	*result = impl->impl(decoded, *returned);
+	*result = impl->impl(fastrpc_listener_interfaces[handle]->data,
+			     decoded, *returned);
 
 	return 0;
 }

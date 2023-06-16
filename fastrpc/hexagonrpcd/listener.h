@@ -30,12 +30,14 @@
 
 struct fastrpc_function_impl {
 	const struct fastrpc_function_def_interp2 *def;
-	uint32_t (*impl)(const struct fastrpc_io_buffer *inbufs,
+	uint32_t (*impl)(void *data,
+			 const struct fastrpc_io_buffer *inbufs,
 			 struct fastrpc_io_buffer *outbufs);
 };
 
 struct fastrpc_interface {
 	const char *name;
+	void *data;
 	uint8_t n_procs;
 	struct fastrpc_function_impl procs[];
 };

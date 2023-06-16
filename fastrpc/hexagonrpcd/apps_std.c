@@ -77,7 +77,8 @@ static void open_dirs()
  * File descriptors do not have a flush operation because their reads and
  * writes are blocking.
  */
-static uint32_t apps_std_fflush(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_fflush(void *data,
+				const struct fastrpc_io_buffer *inbufs,
 				struct fastrpc_io_buffer *outbufs)
 {
 	uint32_t *fd = inbufs[0].p;
@@ -91,7 +92,8 @@ static uint32_t apps_std_fflush(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_fclose(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_fclose(void *data,
+				const struct fastrpc_io_buffer *inbufs,
 				struct fastrpc_io_buffer *outbufs)
 {
 	const uint32_t *first_in = inbufs[0].p;
@@ -110,7 +112,8 @@ static uint32_t apps_std_fclose(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_fread(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_fread(void *data,
+			       const struct fastrpc_io_buffer *inbufs,
 			       struct fastrpc_io_buffer *outbufs)
 {
 	const struct apps_std_fread_invoke *first_in = inbufs[0].p;
@@ -135,7 +138,8 @@ static uint32_t apps_std_fread(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_fseek(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_fseek(void *data,
+			       const struct fastrpc_io_buffer *inbufs,
 			       struct fastrpc_io_buffer *outbufs)
 {
 	struct {
@@ -163,7 +167,8 @@ static uint32_t apps_std_fseek(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_fopen_with_env(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_fopen_with_env(void *data,
+					const struct fastrpc_io_buffer *inbufs,
 					struct fastrpc_io_buffer *outbufs)
 {
 	const struct {
@@ -232,7 +237,8 @@ static uint32_t apps_std_fopen_with_env(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_opendir(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_opendir(void *data,
+				 const struct fastrpc_io_buffer *inbufs,
 				 struct fastrpc_io_buffer *outbufs)
 {
 	const uint32_t *namelen = inbufs[0].p;
@@ -268,7 +274,8 @@ static uint32_t apps_std_opendir(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_closedir(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_closedir(void *data,
+				  const struct fastrpc_io_buffer *inbufs,
 				  struct fastrpc_io_buffer *outbufs)
 {
 	const uint64_t *dir = inbufs[0].p;
@@ -285,7 +292,8 @@ static uint32_t apps_std_closedir(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_readdir(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_readdir(void *data,
+				 const struct fastrpc_io_buffer *inbufs,
 				 struct fastrpc_io_buffer *outbufs)
 {
 	const uint64_t *dir = inbufs[0].p;
@@ -313,7 +321,8 @@ static uint32_t apps_std_readdir(const struct fastrpc_io_buffer *inbufs,
 	return 0;
 }
 
-static uint32_t apps_std_stat(const struct fastrpc_io_buffer *inbufs,
+static uint32_t apps_std_stat(void *data,
+			      const struct fastrpc_io_buffer *inbufs,
 			      struct fastrpc_io_buffer *outbufs)
 {
 	char *pathname;
