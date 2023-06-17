@@ -202,7 +202,9 @@ err_free_outbufs:
 	return ret;
 }
 
-static int invoke_requested_procedure(uint32_t handle,
+static int invoke_requested_procedure(size_t n_ifaces,
+				      struct fastrpc_interface **ifaces,
+				      uint32_t handle,
 				      uint32_t sc,
 			              uint32_t *result,
 				      const struct fastrpc_io_buffer *decoded,
@@ -221,19 +223,19 @@ static int invoke_requested_procedure(uint32_t handle,
 		return 1;
 	}
 
-	if (handle >= fastrpc_listener_n_interfaces) {
+	if (handle >= n_ifaces) {
 		fprintf(stderr, "Unsupported handle: %u\n", handle);
 		*result = AEE_EUNSUPPORTED;
 		return 1;
 	}
 
-	if (method >= fastrpc_listener_interfaces[handle]->n_procs) {
+	if (method >= ifaces[handle]->n_procs) {
 		fprintf(stderr, "Unsupported method: %u (%08x)\n", method, sc);
 		*result = AEE_EUNSUPPORTED;
 		return 1;
 	}
 
-	impl = &fastrpc_listener_interfaces[handle]->procs[method];
+	impl = &ifaces[handle]->procs[method];
 
 	if (impl->def == NULL || impl->impl == NULL) {
 		fprintf(stderr, "Unsupported method: %u (%08x)\n", method, sc);
@@ -266,13 +268,14 @@ static int invoke_requested_procedure(uint32_t handle,
 		return 1;
 	}
 
-	*result = impl->impl(fastrpc_listener_interfaces[handle]->data,
-			     decoded, *returned);
+	*result = impl->impl(ifaces[handle]->data, decoded, *returned);
 
 	return 0;
 }
 
-int run_fastrpc_listener(int fd)
+int run_fastrpc_listener(int fd,
+			 size_t n_ifaces,
+			 struct fastrpc_interface **ifaces)
 {
 	struct fastrpc_io_buffer *decoded = NULL,
 				 *returned = NULL;
@@ -299,7 +302,8 @@ int run_fastrpc_listener(int fd)
 		if (returned != NULL)
 			iobuf_free(n_outbufs, returned);
 
-		ret = invoke_requested_procedure(handle, sc, &result,
+		ret = invoke_requested_procedure(n_ifaces, ifaces,
+						 handle, sc, &result,
 						 decoded, &returned);
 		if (ret)
 			break;

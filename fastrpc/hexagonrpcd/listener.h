@@ -49,6 +49,8 @@ extern const struct fastrpc_interface apps_std_interface;
 extern const struct fastrpc_interface *fastrpc_listener_interfaces[];
 extern size_t fastrpc_listener_n_interfaces;
 
-int run_fastrpc_listener(int fd);
+int run_fastrpc_listener(int fd,
+			 size_t n_ifaces,
+			 struct fastrpc_interface **ifaces);
 
 #endif

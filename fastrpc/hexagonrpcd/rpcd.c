@@ -142,7 +142,9 @@ static void *start_reverse_tunnel(void *data)
 	if (ret)
 	        return NULL;
 
-	run_fastrpc_listener(*fd);
+	run_fastrpc_listener(*fd,
+			     fastrpc_listener_n_interfaces,
+			     fastrpc_listener_interfaces);
 
 	return NULL;
 }
