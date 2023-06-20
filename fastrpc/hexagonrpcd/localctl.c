@@ -28,6 +28,12 @@
 #include "interfaces/remotectl.def"
 #include "iobuffer.h"
 #include "listener.h"
+#include "localctl.h"
+
+struct remotectl_ctx {
+	size_t n_ifaces;
+	struct fastrpc_interface **ifaces;
+};
 
 struct remotectl_open_invoke {
 	uint32_t inlen;
@@ -97,6 +103,44 @@ static uint32_t localctl_close(void *data,
 	*dlerr_len = 0;
 
 	return 0;
+}
+
+struct fastrpc_interface *fastrpc_localctl_init(size_t n_ifaces,
+						struct fastrpc_interface **ifaces)
+{
+	struct fastrpc_interface *iface;
+	struct remotectl_ctx *ctx;
+
+	iface = malloc(sizeof(struct fastrpc_interface));
+	if (iface == NULL)
+		return NULL;
+
+	ctx = malloc(sizeof(struct remotectl_ctx));
+	if (ctx == NULL)
+		goto err;
+
+	memcpy(iface, &localctl_interface, sizeof(struct fastrpc_interface));
+
+	ctx->n_ifaces = n_ifaces;
+	ctx->ifaces = ifaces;
+
+	iface->data = ctx;
+
+	return iface;
+
+err:
+	free(iface);
+
+	return NULL;
+}
+
+void fastrpc_localctl_deinit(struct fastrpc_interface *iface)
+{
+	if (iface == NULL)
+		return;
+
+	free(iface->data);
+	free(iface);
 }
 
 static const struct fastrpc_function_impl localctl_procs[] = {
