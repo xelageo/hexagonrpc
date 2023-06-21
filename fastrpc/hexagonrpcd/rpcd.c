@@ -35,6 +35,7 @@
 #include "interfaces/chre_slpi.def"
 #include "interfaces/remotectl.def"
 #include "listener.h"
+#include "localctl.h"
 
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
 {
@@ -135,16 +136,39 @@ err:
 
 static void *start_reverse_tunnel(void *data)
 {
+	struct fastrpc_interface **ifaces;
+	size_t n_ifaces = 2;
 	int *fd = data;
 	int ret;
 
+	ifaces = malloc(sizeof(struct fastrpc_interface) * n_ifaces);
+	if (ifaces == NULL)
+		return NULL;
+
+	/*
+	 * The apps_remotectl interface patiently waits for this function to
+	 * fully populate the ifaces array as long as it receives a pointer to
+	 * it.
+	 */
+	ifaces[REMOTECTL_HANDLE] = fastrpc_localctl_init(n_ifaces, ifaces);
+
+	// Dynamic interfaces with no hardcoded handle
+	ifaces[1] = &apps_std_interface;
+
 	ret = register_fastrpc_listener(*fd);
 	if (ret)
-	        return NULL;
+		goto err;
 
-	run_fastrpc_listener(*fd,
-			     fastrpc_listener_n_interfaces,
-			     fastrpc_listener_interfaces);
+	run_fastrpc_listener(*fd, n_ifaces, ifaces);
+
+	fastrpc_localctl_deinit(ifaces[REMOTECTL_HANDLE]);
+
+	free(ifaces);
+
+	return NULL;
+
+err:
+	free(ifaces);
 
 	return NULL;
 }
