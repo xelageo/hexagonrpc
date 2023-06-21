@@ -404,68 +404,70 @@ err_free_pathname:
 	return AEE_EFAILED;
 }
 
+static const struct fastrpc_function_impl apps_std_procs[] = {
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{
+		.def = &apps_std_fflush_def,
+		.impl = apps_std_fflush,
+	},
+	{
+		.def = &apps_std_fclose_def,
+		.impl = apps_std_fclose,
+	},
+	{
+		.def = &apps_std_fread_def,
+		.impl = apps_std_fread,
+	},
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{
+		.def = &apps_std_fseek_def,
+		.impl = apps_std_fseek,
+	},
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{
+		.def = &apps_std_fopen_with_env_def,
+		.impl = apps_std_fopen_with_env,
+	},
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{
+		.def = &apps_std_opendir_def,
+		.impl = apps_std_opendir,
+	},
+	{
+		.def = &apps_std_closedir_def,
+		.impl = apps_std_closedir,
+	},
+	{
+		.def = &apps_std_readdir_def,
+		.impl = apps_std_readdir,
+	},
+	{ .def = NULL, .impl = NULL, },
+	{ .def = NULL, .impl = NULL, },
+	{
+		.def = &apps_std_stat_def,
+		.impl = apps_std_stat,
+	},
+};
+
 const struct fastrpc_interface apps_std_interface = {
 	.name = "apps_std",
 	.n_procs = 32,
-	.procs = {
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{
-			.def = &apps_std_fflush_def,
-			.impl = apps_std_fflush,
-		},
-		{
-			.def = &apps_std_fclose_def,
-			.impl = apps_std_fclose,
-		},
-		{
-			.def = &apps_std_fread_def,
-			.impl = apps_std_fread,
-		},
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{
-			.def = &apps_std_fseek_def,
-			.impl = apps_std_fseek,
-		},
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{
-			.def = &apps_std_fopen_with_env_def,
-			.impl = apps_std_fopen_with_env,
-		},
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{
-			.def = &apps_std_opendir_def,
-			.impl = apps_std_opendir,
-		},
-		{
-			.def = &apps_std_closedir_def,
-			.impl = apps_std_closedir,
-		},
-		{
-			.def = &apps_std_readdir_def,
-			.impl = apps_std_readdir,
-		},
-		{ .def = NULL, .impl = NULL, },
-		{ .def = NULL, .impl = NULL, },
-		{
-			.def = &apps_std_stat_def,
-			.impl = apps_std_stat,
-		},
-	},
+	.procs = apps_std_procs,
 };

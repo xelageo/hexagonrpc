@@ -39,7 +39,7 @@ struct fastrpc_interface {
 	const char *name;
 	void *data;
 	uint8_t n_procs;
-	struct fastrpc_function_impl procs[];
+	const struct fastrpc_function_impl *procs;
 };
 
 extern const struct fastrpc_interface localctl_interface;

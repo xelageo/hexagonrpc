@@ -99,11 +99,13 @@ static uint32_t localctl_close(void *data,
 	return 0;
 }
 
+static const struct fastrpc_function_impl localctl_procs[] = {
+	{ .def = &remotectl_open_def, .impl = localctl_open, },
+	{ .def = &remotectl_close_def, .impl = localctl_close, },
+};
+
 const struct fastrpc_interface localctl_interface = {
 	.name = "remotectl",
 	.n_procs = 2,
-	.procs = {
-		{ .def = &remotectl_open_def, .impl = localctl_open, },
-		{ .def = &remotectl_close_def, .impl = localctl_close, },
-	},
+	.procs = localctl_procs,
 };
