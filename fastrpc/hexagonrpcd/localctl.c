@@ -59,6 +59,7 @@ static uint32_t localctl_open(void *data,
 			      const struct fastrpc_io_buffer *inbufs,
 			      struct fastrpc_io_buffer *outbufs)
 {
+	struct remotectl_ctx *ctx = data;
 	const struct remotectl_open_invoke *first_in = inbufs[0].p;
 	struct remotectl_open_return *first_out = outbufs[0].p;
 	size_t i;
@@ -68,8 +69,8 @@ static uint32_t localctl_open(void *data,
 
 	memset(outbufs[1].p, 0, first_in->outlen);
 
-	for (i = 0; i < fastrpc_listener_n_interfaces; i++) {
-		if (!strcmp(fastrpc_listener_interfaces[i]->name,
+	for (i = 0; i < ctx->n_ifaces; i++) {
+		if (!strcmp(ctx->ifaces[i]->name,
 			    inbufs[1].p)) {
 			first_out->handle = i;
 			first_out->error = 0;
