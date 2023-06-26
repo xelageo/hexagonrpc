@@ -58,7 +58,7 @@ static int adsp_library_dirfd = -EBADF;
 static void open_dirs()
 {
 	if (rootfd < 0) {
-		rootfd = hexagonfs_open_root();
+		rootfd = hexagonfs_open_root(&hexagonfs_root_dir);
 		if (rootfd < 0)
 			return;
 	}

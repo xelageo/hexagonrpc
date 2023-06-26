@@ -52,7 +52,7 @@
 		.u.phys = path,				\
 	}
 
-static struct hexagonfs_dirent root_dir = DEFINE_VIRT_DIR("/",
+struct hexagonfs_dirent hexagonfs_root_dir = DEFINE_VIRT_DIR("/",
 	&DEFINE_VIRT_DIR("mnt",
 		&DEFINE_VIRT_DIR("vendor",
 			&DEFINE_VIRT_DIR("persist",
@@ -212,7 +212,7 @@ static void destroy_file_descriptor(struct hexagonfs_fd *fd)
 	}
 }
 
-int hexagonfs_open_root()
+int hexagonfs_open_root(struct hexagonfs_dirent *root)
 {
 	struct hexagonfs_fd *fd;
 	int ret;
@@ -223,9 +223,9 @@ int hexagonfs_open_root()
 
 	fd->is_assigned = false;
 	fd->up = NULL;
-	fd->ops = root_dir.ops;
+	fd->ops = root->ops;
 
-	ret = root_dir.ops->from_dirent(root_dir.u.ptr, true, &fd->data);
+	ret = root->ops->from_dirent(root->u.ptr, true, &fd->data);
 	if (ret)
 		goto err;
 
