@@ -31,6 +31,8 @@
 #include <sys/ioctl.h>
 
 #include "aee_error.h"
+#include "apps_std.h"
+#include "hexagonfs.h"
 #include "interfaces/adsp_default_listener.def"
 #include "interfaces/chre_slpi.def"
 #include "interfaces/remotectl.def"
@@ -153,7 +155,7 @@ static void *start_reverse_tunnel(void *data)
 	ifaces[REMOTECTL_HANDLE] = fastrpc_localctl_init(n_ifaces, ifaces);
 
 	// Dynamic interfaces with no hardcoded handle
-	ifaces[1] = &apps_std_interface;
+	ifaces[1] = fastrpc_apps_std_init(&hexagonfs_root_dir);
 
 	ret = register_fastrpc_listener(*fd);
 	if (ret)

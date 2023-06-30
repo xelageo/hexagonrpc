@@ -43,6 +43,12 @@ struct apps_std_fread_return {
 	uint32_t is_eof;
 };
 
+struct apps_std_ctx {
+	int rootfd;
+	int adsp_avs_cfg_dirfd;
+	int adsp_library_dirfd;
+};
+
 
 
 static int apps_std_whence_table[] = {
@@ -50,27 +56,6 @@ static int apps_std_whence_table[] = {
 	SEEK_CUR,
 	SEEK_END,
 };
-
-static int rootfd = -EBADF;
-static int adsp_avs_cfg_dirfd = -EBADF;
-static int adsp_library_dirfd = -EBADF;
-
-static void open_dirs()
-{
-	if (rootfd < 0) {
-		rootfd = hexagonfs_open_root(&hexagonfs_root_dir);
-		if (rootfd < 0)
-			return;
-	}
-
-	if (adsp_avs_cfg_dirfd < 0)
-		adsp_avs_cfg_dirfd = hexagonfs_openat(rootfd, rootfd,
-						      "/usr/lib/qcom/adsp/avs/");
-
-	if (adsp_library_dirfd < 0)
-		adsp_library_dirfd = hexagonfs_openat(rootfd, rootfd,
-						      "/usr/lib/qcom/adsp/");
-}
 
 /*
  * This is a placeholder function used to complete any I/O operations.
@@ -171,6 +156,7 @@ static uint32_t apps_std_fopen_with_env(void *data,
 					const struct fastrpc_io_buffer *inbufs,
 					struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	const struct {
 		uint32_t envvarname_len;
 		uint32_t delim_len;
@@ -194,18 +180,16 @@ static uint32_t apps_std_fopen_with_env(void *data,
 		return AEE_EUNSUPPORTED;
 	}
 
-	open_dirs();
-
-	if (rootfd < 0) {
+	if (ctx->rootfd < 0) {
 		fprintf(stderr, "Could not open virtual root directory: %s\n",
-				strerror(-rootfd));
+				strerror(-ctx->rootfd));
 		return AEE_EFAILED;
 	}
 
 	if (!strcmp(inbufs[1].p, "ADSP_LIBRARY_PATH")) {
-		dirfd = adsp_library_dirfd;
+		dirfd = ctx->adsp_library_dirfd;
 	} else if (!strcmp(inbufs[1].p, "ADSP_AVS_CFG_PATH")) {
-		dirfd = adsp_avs_cfg_dirfd;
+		dirfd = ctx->adsp_avs_cfg_dirfd;
 	} else {
 		fprintf(stderr, "Unknown search directory %s\n",
 				(const char *) inbufs[1].p);
@@ -218,7 +202,7 @@ static uint32_t apps_std_fopen_with_env(void *data,
 		return AEE_EFAILED;
 	}
 
-	fd = hexagonfs_openat(rootfd, dirfd, inbufs[3].p);
+	fd = hexagonfs_openat(ctx->rootfd, dirfd, inbufs[3].p);
 	if (fd < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 				(const char *) inbufs[3].p,
@@ -241,6 +225,7 @@ static uint32_t apps_std_opendir(void *data,
 				 const struct fastrpc_io_buffer *inbufs,
 				 struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	const uint32_t *namelen = inbufs[0].p;
 	uint64_t *dir_out = outbufs[0].p;
 	int ret;
@@ -249,15 +234,13 @@ static uint32_t apps_std_opendir(void *data,
 	if (((const char *) inbufs[1].p)[*namelen - 1] != 0)
 		return AEE_EBADPARM;
 
-	open_dirs();
-
-	if (rootfd < 0) {
+	if (ctx->rootfd < 0) {
 		fprintf(stderr, "Could not open virtual root directory: %s\n",
-				strerror(-rootfd));
+				strerror(-ctx->rootfd));
 		return AEE_EFAILED;
 	}
 
-	ret = hexagonfs_openat(rootfd, rootfd, inbufs[1].p);
+	ret = hexagonfs_openat(ctx->rootfd, ctx->rootfd, inbufs[1].p);
 	if (ret < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 				(const char *) inbufs[1].p,
@@ -325,6 +308,7 @@ static uint32_t apps_std_stat(void *data,
 			      const struct fastrpc_io_buffer *inbufs,
 			      struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	char *pathname;
 	const struct {
 		uint32_t method;
@@ -352,15 +336,13 @@ static uint32_t apps_std_stat(void *data,
 	memcpy(pathname, inbufs[1].p, first_in->pathname_len);
 	pathname[first_in->pathname_len] = 0;
 
-	open_dirs();
-
-	if (rootfd < 0) {
+	if (ctx->rootfd < 0) {
 		fprintf(stderr, "Could not open virtual root directory: %s\n",
-				strerror(-rootfd));
+				strerror(-ctx->rootfd));
 		return AEE_EFAILED;
 	}
 
-	fd = hexagonfs_openat(rootfd, rootfd, pathname);
+	fd = hexagonfs_openat(ctx->rootfd, ctx->rootfd, pathname);
 	if (fd < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 				pathname, strerror(-fd));
@@ -402,6 +384,46 @@ static uint32_t apps_std_stat(void *data,
 err_free_pathname:
 	free(pathname);
 	return AEE_EFAILED;
+}
+
+struct fastrpc_interface *fastrpc_apps_std_init(struct hexagonfs_dirent *root)
+{
+	struct fastrpc_interface *iface;
+	struct apps_std_ctx *ctx;
+
+	iface = malloc(sizeof(struct fastrpc_interface));
+	if (iface == NULL)
+		return NULL;
+
+	ctx = calloc(1, sizeof(struct apps_std_ctx));
+	if (ctx == NULL)
+		goto err;
+
+	memcpy(iface, &apps_std_interface, sizeof(struct fastrpc_interface));
+
+	ctx->rootfd = hexagonfs_open_root(root);
+
+	if (ctx->rootfd >= 0) {
+		ctx->adsp_avs_cfg_dirfd = hexagonfs_openat(ctx->rootfd, ctx->rootfd,
+						      "/usr/lib/qcom/adsp/avs/");
+		ctx->adsp_library_dirfd = hexagonfs_openat(ctx->rootfd, ctx->rootfd,
+						      "/usr/lib/qcom/adsp/");
+	}
+
+	iface->data = ctx;
+
+	return iface;
+
+err:
+	free(iface);
+
+	return NULL;
+}
+
+void fastrpc_apps_std_deinit(struct fastrpc_interface *iface)
+{
+	free(iface->data);
+	free(iface);
 }
 
 static const struct fastrpc_function_impl apps_std_procs[] = {
