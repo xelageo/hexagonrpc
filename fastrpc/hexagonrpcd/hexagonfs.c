@@ -29,8 +29,6 @@
 
 #include "hexagonfs.h"
 
-#define HEXAGONFS_MAX_FD 256
-
 #define DEFINE_VIRT_DIR(dirname, files...)				\
 	(struct hexagonfs_dirent) {					\
 		.name = dirname,					\
@@ -132,8 +130,6 @@ struct hexagonfs_dirent hexagonfs_root_dir = DEFINE_VIRT_DIR("/",
 	NULL,
 );
 
-static struct hexagonfs_fd *fds[HEXAGONFS_MAX_FD];
-
 static char *copy_segment_and_advance(const char *path,
 				      bool *trailing_slash,
 				      const char **next)
@@ -183,7 +179,8 @@ static struct hexagonfs_fd *pop_dir(struct hexagonfs_fd *dir,
 	return up;
 }
 
-static int allocate_file_number(struct hexagonfs_fd *fd)
+static int allocate_file_number(struct hexagonfs_fd **fds,
+				struct hexagonfs_fd *fd)
 {
 	size_t i;
 
@@ -212,7 +209,7 @@ static void destroy_file_descriptor(struct hexagonfs_fd *fd)
 	}
 }
 
-int hexagonfs_open_root(struct hexagonfs_dirent *root)
+int hexagonfs_open_root(struct hexagonfs_fd **fds, struct hexagonfs_dirent *root)
 {
 	struct hexagonfs_fd *fd;
 	int ret;
@@ -229,7 +226,7 @@ int hexagonfs_open_root(struct hexagonfs_dirent *root)
 	if (ret)
 		goto err;
 
-	ret = allocate_file_number(fd);
+	ret = allocate_file_number(fds, fd);
 	if (ret < 0)
 		goto err;
 
@@ -240,7 +237,7 @@ err:
 	return ret;
 }
 
-int hexagonfs_openat(int rootfd, int dirfd, const char *name)
+int hexagonfs_openat(struct hexagonfs_fd **fds, int rootfd, int dirfd, const char *name)
 {
 	struct hexagonfs_fd *fd;
 	const char *curr = name;
@@ -280,7 +277,7 @@ int hexagonfs_openat(int rootfd, int dirfd, const char *name)
 	if (ret)
 		goto err;
 
-	ret = allocate_file_number(fd);
+	ret = allocate_file_number(fds, fd);
 	if (ret)
 		goto err;
 
@@ -292,7 +289,7 @@ err:
 	return ret;
 }
 
-int hexagonfs_close(int fileno)
+int hexagonfs_close(struct hexagonfs_fd **fds, int fileno)
 {
 	struct hexagonfs_fd *fd;
 
@@ -311,7 +308,7 @@ int hexagonfs_close(int fileno)
 	return 0;
 }
 
-int hexagonfs_lseek(int fileno, off_t off, int whence)
+int hexagonfs_lseek(struct hexagonfs_fd **fds, int fileno, off_t off, int whence)
 {
 	struct hexagonfs_fd *fd;
 
@@ -328,7 +325,7 @@ int hexagonfs_lseek(int fileno, off_t off, int whence)
 	return fd->ops->seek(fd, off, whence);
 }
 
-ssize_t hexagonfs_read(int fileno, size_t size, void *ptr)
+ssize_t hexagonfs_read(struct hexagonfs_fd **fds, int fileno, size_t size, void *ptr)
 {
 	struct hexagonfs_fd *fd;
 
@@ -345,7 +342,7 @@ ssize_t hexagonfs_read(int fileno, size_t size, void *ptr)
 	return fd->ops->read(fd, size, ptr);
 }
 
-int hexagonfs_readdir(int fileno, size_t ent_size, char *ent)
+int hexagonfs_readdir(struct hexagonfs_fd **fds, int fileno, size_t ent_size, char *ent)
 {
 	struct hexagonfs_fd *fd;
 
@@ -362,7 +359,7 @@ int hexagonfs_readdir(int fileno, size_t ent_size, char *ent)
 	return fd->ops->readdir(fd, ent_size, ent);
 }
 
-int hexagonfs_fstat(int fileno, struct stat *stats)
+int hexagonfs_fstat(struct hexagonfs_fd **fds, int fileno, struct stat *stats)
 {
 	struct hexagonfs_fd *fd;
 

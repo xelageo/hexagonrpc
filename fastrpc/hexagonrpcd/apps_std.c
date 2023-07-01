@@ -47,6 +47,7 @@ struct apps_std_ctx {
 	int rootfd;
 	int adsp_avs_cfg_dirfd;
 	int adsp_library_dirfd;
+	struct hexagonfs_fd *fds[HEXAGONFS_MAX_FD];
 };
 
 
@@ -81,10 +82,11 @@ static uint32_t apps_std_fclose(void *data,
 				const struct fastrpc_io_buffer *inbufs,
 				struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	const uint32_t *first_in = inbufs[0].p;
 	int ret;
 
-	ret = hexagonfs_close(*first_in);
+	ret = hexagonfs_close(ctx->fds, *first_in);
 	if (ret) {
 		fprintf(stderr, "Could not close: %s\n", strerror(-ret));
 		return AEE_EFAILED;
@@ -101,11 +103,13 @@ static uint32_t apps_std_fread(void *data,
 			       const struct fastrpc_io_buffer *inbufs,
 			       struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	const struct apps_std_fread_invoke *first_in = inbufs[0].p;
 	struct apps_std_fread_return *first_out = outbufs[0].p;
 	ssize_t ret;
 
-	ret = hexagonfs_read(first_in->fd, first_in->buf_size, outbufs[1].p);
+	ret = hexagonfs_read(ctx->fds, first_in->fd,
+			     first_in->buf_size, outbufs[1].p);
 	if (ret < 0) {
 		fprintf(stderr, "Could not read file: %s\n", strerror(-ret));
 		return AEE_EFAILED;
@@ -127,6 +131,7 @@ static uint32_t apps_std_fseek(void *data,
 			       const struct fastrpc_io_buffer *inbufs,
 			       struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	struct {
 		uint32_t fd;
 		uint32_t pos;
@@ -137,7 +142,7 @@ static uint32_t apps_std_fseek(void *data,
 
 	whence = apps_std_whence_table[first_in->whence];
 
-	ret = hexagonfs_lseek(first_in->fd, first_in->pos, whence);
+	ret = hexagonfs_lseek(ctx->fds, first_in->fd, first_in->pos, whence);
 	if (ret) {
 		fprintf(stderr, "Could not seek stream: %s\n", strerror(-ret));
 		return AEE_EFAILED;
@@ -202,7 +207,7 @@ static uint32_t apps_std_fopen_with_env(void *data,
 		return AEE_EFAILED;
 	}
 
-	fd = hexagonfs_openat(ctx->rootfd, dirfd, inbufs[3].p);
+	fd = hexagonfs_openat(ctx->fds, ctx->rootfd, dirfd, inbufs[3].p);
 	if (fd < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 				(const char *) inbufs[3].p,
@@ -240,7 +245,7 @@ static uint32_t apps_std_opendir(void *data,
 		return AEE_EFAILED;
 	}
 
-	ret = hexagonfs_openat(ctx->rootfd, ctx->rootfd, inbufs[1].p);
+	ret = hexagonfs_openat(ctx->fds, ctx->rootfd, ctx->rootfd, inbufs[1].p);
 	if (ret < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 				(const char *) inbufs[1].p,
@@ -261,10 +266,11 @@ static uint32_t apps_std_closedir(void *data,
 				  const struct fastrpc_io_buffer *inbufs,
 				  struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	const uint64_t *dir = inbufs[0].p;
 	int ret;
 
-	ret = hexagonfs_close(*dir);
+	ret = hexagonfs_close(ctx->fds, *dir);
 	if (ret)
 		return AEE_EFAILED;
 
@@ -279,6 +285,7 @@ static uint32_t apps_std_readdir(void *data,
 				 const struct fastrpc_io_buffer *inbufs,
 				 struct fastrpc_io_buffer *outbufs)
 {
+	struct apps_std_ctx *ctx = data;
 	const uint64_t *dir = inbufs[0].p;
 	struct {
 		uint32_t inode;
@@ -287,7 +294,7 @@ static uint32_t apps_std_readdir(void *data,
 	} *first_out = outbufs[0].p;
 	int ret;
 
-	ret = hexagonfs_readdir(*dir, 255, first_out->name);
+	ret = hexagonfs_readdir(ctx->fds, *dir, 255, first_out->name);
 	if (ret < 0) {
 		fprintf(stderr, "Could not read from directory: %s\n",
 				strerror(-ret));
@@ -342,21 +349,21 @@ static uint32_t apps_std_stat(void *data,
 		return AEE_EFAILED;
 	}
 
-	fd = hexagonfs_openat(ctx->rootfd, ctx->rootfd, pathname);
+	fd = hexagonfs_openat(ctx->fds, ctx->rootfd, ctx->rootfd, pathname);
 	if (fd < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 				pathname, strerror(-fd));
 		goto err_free_pathname;
 	}
 
-	ret = hexagonfs_fstat(fd, &stats);
+	ret = hexagonfs_fstat(ctx->fds, fd, &stats);
 	if (ret) {
 		fprintf(stderr, "Could not stat %s: %s\n",
 				pathname, strerror(-fd));
 		goto err_free_pathname;
 	}
 
-	hexagonfs_close(fd);
+	hexagonfs_close(ctx->fds, fd);
 
 #ifdef HEXAGONRPC_VERBOSE
 	printf("stat(%s)\n", pathname);
@@ -401,13 +408,17 @@ struct fastrpc_interface *fastrpc_apps_std_init(struct hexagonfs_dirent *root)
 
 	memcpy(iface, &apps_std_interface, sizeof(struct fastrpc_interface));
 
-	ctx->rootfd = hexagonfs_open_root(root);
+	ctx->rootfd = hexagonfs_open_root(ctx->fds, root);
 
 	if (ctx->rootfd >= 0) {
-		ctx->adsp_avs_cfg_dirfd = hexagonfs_openat(ctx->rootfd, ctx->rootfd,
-						      "/usr/lib/qcom/adsp/avs/");
-		ctx->adsp_library_dirfd = hexagonfs_openat(ctx->rootfd, ctx->rootfd,
-						      "/usr/lib/qcom/adsp/");
+		ctx->adsp_avs_cfg_dirfd = hexagonfs_openat(ctx->fds,
+							   ctx->rootfd,
+							   ctx->rootfd,
+							   "/usr/lib/qcom/adsp/avs/");
+		ctx->adsp_library_dirfd = hexagonfs_openat(ctx->fds,
+							   ctx->rootfd,
+							   ctx->rootfd,
+							   "/usr/lib/qcom/adsp/");
 	}
 
 	iface->data = ctx;
@@ -422,6 +433,14 @@ err:
 
 void fastrpc_apps_std_deinit(struct fastrpc_interface *iface)
 {
+	struct apps_std_ctx *ctx = iface->data;
+	int i;
+
+	for (i = 0; i < HEXAGONFS_MAX_FD; i++) {
+		if (ctx->fds[i] != NULL)
+			hexagonfs_close(ctx->fds, i);
+	}
+
 	free(iface->data);
 	free(iface);
 }
