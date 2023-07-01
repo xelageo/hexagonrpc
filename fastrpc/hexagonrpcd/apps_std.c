@@ -126,7 +126,7 @@ static uint32_t apps_std_fseek(void *data,
 			       struct fastrpc_io_buffer *outbufs)
 {
 	struct apps_std_ctx *ctx = data;
-	struct {
+	const struct {
 		uint32_t fd;
 		uint32_t pos;
 		uint32_t whence;
