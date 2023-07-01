@@ -33,16 +33,6 @@
 #include "iobuffer.h"
 #include "listener.h"
 
-struct apps_std_fread_invoke {
-	uint32_t fd;
-	uint32_t buf_size;
-};
-
-struct apps_std_fread_return {
-	uint32_t written;
-	uint32_t is_eof;
-};
-
 struct apps_std_ctx {
 	int rootfd;
 	int adsp_avs_cfg_dirfd;
@@ -104,8 +94,14 @@ static uint32_t apps_std_fread(void *data,
 			       struct fastrpc_io_buffer *outbufs)
 {
 	struct apps_std_ctx *ctx = data;
-	const struct apps_std_fread_invoke *first_in = inbufs[0].p;
-	struct apps_std_fread_return *first_out = outbufs[0].p;
+	const struct {
+		uint32_t fd;
+		uint32_t buf_size;
+	} *first_in = inbufs[0].p;
+	struct {
+		uint32_t written;
+		uint32_t is_eof;
+	} *first_out = outbufs[0].p;
 	ssize_t ret;
 
 	ret = hexagonfs_read(ctx->fds, first_in->fd,
