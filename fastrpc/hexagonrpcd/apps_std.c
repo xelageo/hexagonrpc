@@ -40,9 +40,7 @@ struct apps_std_ctx {
 	struct hexagonfs_fd *fds[HEXAGONFS_MAX_FD];
 };
 
-
-
-static int apps_std_whence_table[] = {
+static const int apps_std_whence_table[] = {
 	SEEK_SET,
 	SEEK_CUR,
 	SEEK_END,
