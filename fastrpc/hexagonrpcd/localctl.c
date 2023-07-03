@@ -64,7 +64,7 @@ static uint32_t localctl_open(void *data,
 	struct remotectl_open_return *first_out = outbufs[0].p;
 	size_t i;
 
-	if (((const char *) inbufs[1].p)[first_in->inlen - 1] != 0)
+	if (((const char *) inbufs[1].p)[inbufs[1].s - 1] != 0)
 		return AEE_EBADPARM;
 
 	memset(outbufs[1].p, 0, first_in->outlen);
