@@ -167,9 +167,9 @@ static uint32_t apps_std_fopen_with_env(void *data,
 	int dirfd, fd;
 
 	// The name and environment variable must also be NULL-terminated
-	if (((const char *) inbufs[1].p)[first_in->envvarname_len - 1] != 0
-	 || ((const char *) inbufs[3].p)[first_in->name_len - 1] != 0
-	 || ((const char *) inbufs[4].p)[first_in->mode_len - 1] != 0)
+	if (((const char *) inbufs[1].p)[inbufs[1].s - 1] != 0
+	 || ((const char *) inbufs[3].p)[inbufs[3].s - 1] != 0
+	 || ((const char *) inbufs[4].p)[inbufs[4].s - 1] != 0)
 		return AEE_EBADPARM;
 
 	rw_mode = ((const char *) inbufs[4].p)[0];
@@ -230,7 +230,7 @@ static uint32_t apps_std_opendir(void *data,
 	int ret;
 
 	// The name must be NULL-terminated
-	if (((const char *) inbufs[1].p)[*namelen - 1] != 0)
+	if (((const char *) inbufs[1].p)[inbufs[1].s - 1] != 0)
 		return AEE_EBADPARM;
 
 	if (ctx->rootfd < 0) {
@@ -333,9 +333,9 @@ static uint32_t apps_std_stat(void *data,
 	struct stat stats;
 	int fd, ret;
 
-	pathname = malloc(first_in->pathname_len + 1);
-	memcpy(pathname, inbufs[1].p, first_in->pathname_len);
-	pathname[first_in->pathname_len] = 0;
+	pathname = malloc(inbufs[1].s + 1);
+	memcpy(pathname, inbufs[1].p, inbufs[1].s);
+	pathname[inbufs[1].s] = 0;
 
 	if (ctx->rootfd < 0) {
 		fprintf(stderr, "Could not open virtual root directory: %s\n",
