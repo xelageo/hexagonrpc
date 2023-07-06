@@ -38,6 +38,13 @@
 #include "interfaces/remotectl.def"
 #include "listener.h"
 #include "localctl.h"
+#include "rpcd_builder.h"
+
+struct listener_thread_args {
+	int fd;
+	char *device_dir;
+	char *dsp;
+};
 
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
 {
@@ -138,14 +145,17 @@ err:
 
 static void *start_reverse_tunnel(void *data)
 {
+	struct listener_thread_args *args = data;
 	struct fastrpc_interface **ifaces;
+	struct hexagonfs_dirent *root_dir;
 	size_t n_ifaces = 2;
-	int *fd = data;
 	int ret;
 
 	ifaces = malloc(sizeof(struct fastrpc_interface) * n_ifaces);
 	if (ifaces == NULL)
 		return NULL;
+
+	root_dir = construct_root_dir(args->device_dir, args->dsp);
 
 	/*
 	 * The apps_remotectl interface patiently waits for this function to
@@ -155,13 +165,13 @@ static void *start_reverse_tunnel(void *data)
 	ifaces[REMOTECTL_HANDLE] = fastrpc_localctl_init(n_ifaces, ifaces);
 
 	// Dynamic interfaces with no hardcoded handle
-	ifaces[1] = fastrpc_apps_std_init(&hexagonfs_root_dir);
+	ifaces[1] = fastrpc_apps_std_init(root_dir);
 
-	ret = register_fastrpc_listener(*fd);
+	ret = register_fastrpc_listener(args->fd);
 	if (ret)
 		goto err;
 
-	run_fastrpc_listener(*fd, n_ifaces, ifaces);
+	run_fastrpc_listener(args->fd, n_ifaces, ifaces);
 
 	fastrpc_localctl_deinit(ifaces[REMOTECTL_HANDLE]);
 
@@ -205,6 +215,7 @@ err:
 int main(int argc, char* argv[])
 {
 	pthread_t chre_thread, listener_thread;
+	struct listener_thread_args *listener_args;
 	char *fastrpc_node = NULL;
 	int fd, ret, opt;
 	bool attach_sns = false;
@@ -248,7 +259,19 @@ int main(int argc, char* argv[])
 		goto err_close_dev;
 	}
 
-	pthread_create(&listener_thread, NULL, start_reverse_tunnel, &fd);
+	listener_args = malloc(sizeof(struct listener_thread_args));
+	if (listener_args == NULL) {
+		perror("Could not create listener arguments");
+		goto err_close_dev;
+	}
+
+	listener_args->fd = fd;
+
+	// These are placeholders
+	listener_args->device_dir = "sdm670/Google/sargo/";
+	listener_args->dsp = "adsp";
+
+	pthread_create(&listener_thread, NULL, start_reverse_tunnel, listener_args);
 	pthread_create(&chre_thread, NULL, start_chre_client, &fd);
 
 	pthread_join(listener_thread, NULL);

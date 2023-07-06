@@ -408,7 +408,7 @@ struct fastrpc_interface *fastrpc_apps_std_init(struct hexagonfs_dirent *root)
 		ctx->adsp_avs_cfg_dirfd = hexagonfs_openat(ctx->fds,
 							   ctx->rootfd,
 							   ctx->rootfd,
-							   "/usr/lib/qcom/adsp/avs/");
+							   "/vendor/etc/acdbdata/");
 		ctx->adsp_library_dirfd = hexagonfs_openat(ctx->fds,
 							   ctx->rootfd,
 							   ctx->rootfd,
