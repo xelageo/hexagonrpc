@@ -25,8 +25,6 @@
 
 #include "hexagonfs.h"
 
-#define PHYS_FILE_ROOT "/usr/share/qcom/"
-
 // These paths are relative, with a prepended '/' if missing from previous segments
 #define ACDBDATA		"/acdb/"
 #define DSP_LIBS		"/dsp/"
@@ -95,18 +93,13 @@ static struct hexagonfs_dirent *hfs_map(const char *name, const char *path)
  *
  * TODO: Make this free()-able with reference counts
  */
-struct hexagonfs_dirent *construct_root_dir(const char *device, const char *dsp)
+struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 {
 	char *acdbdata, *dsp_libs, *sns_cfg, *sns_reg, *sns_reg_config;
-	char *prefix;
 	size_t n_prefix;
 	struct hexagonfs_dirent *persist_dir;
 
-	n_prefix = strlen(PHYS_FILE_ROOT) + strlen(device);
-
-	prefix = malloc(n_prefix + 1);
-	if (prefix == NULL)
-		return NULL;
+	n_prefix = strlen(prefix);
 
 	acdbdata = malloc(n_prefix + strlen(ACDBDATA) + 1);
 	sns_cfg = malloc(n_prefix + strlen(SENSORS_CONFIG) + 1);
@@ -114,9 +107,6 @@ struct hexagonfs_dirent *construct_root_dir(const char *device, const char *dsp)
 	sns_reg_config = malloc(n_prefix + strlen(SNS_REG_CONFIG) + 1);
 
 	dsp_libs = malloc(n_prefix + strlen(DSP_LIBS) + strlen(dsp) + 1);
-
-	strcpy(prefix, PHYS_FILE_ROOT);
-	strcat(prefix, device);
 
 	if (acdbdata != NULL) {
 		strcpy(acdbdata, prefix);

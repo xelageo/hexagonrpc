@@ -24,6 +24,6 @@
 
 #include "hexagonfs.h"
 
-struct hexagonfs_dirent *construct_root_dir(const char *device, const char *dsp);
+struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp);
 
 #endif

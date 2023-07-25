@@ -268,7 +268,7 @@ int main(int argc, char* argv[])
 	listener_args->fd = fd;
 
 	// These are placeholders
-	listener_args->device_dir = "sdm670/Google/sargo/";
+	listener_args->device_dir = "/usr/share/qcom/sdm670/Google/sargo/";
 	listener_args->dsp = "adsp";
 
 	pthread_create(&listener_thread, NULL, start_reverse_tunnel, listener_args);
