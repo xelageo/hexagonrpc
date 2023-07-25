@@ -220,10 +220,25 @@ int main(int argc, char* argv[])
 	int fd, ret, opt;
 	bool attach_sns = false;
 
-	while ((opt = getopt(argc, argv, "sf:")) != -1) {
+	listener_args = malloc(sizeof(struct listener_thread_args));
+	if (listener_args == NULL) {
+		perror("Could not create listener arguments");
+		goto err_close_dev;
+	}
+
+	listener_args->device_dir = "/usr/share/qcom/";
+	listener_args->dsp = "adsp";
+
+	while ((opt = getopt(argc, argv, "d:f:R:s")) != -1) {
 		switch (opt) {
+			case 'd':
+				listener_args->dsp = optarg;
+				break;
 			case 'f':
 				fastrpc_node = optarg;
+				break;
+			case 'R':
+				listener_args->device_dir = optarg;
 				break;
 			case 's':
 				attach_sns = true;
@@ -259,17 +274,7 @@ int main(int argc, char* argv[])
 		goto err_close_dev;
 	}
 
-	listener_args = malloc(sizeof(struct listener_thread_args));
-	if (listener_args == NULL) {
-		perror("Could not create listener arguments");
-		goto err_close_dev;
-	}
-
 	listener_args->fd = fd;
-
-	// These are placeholders
-	listener_args->device_dir = "/usr/share/qcom/sdm670/Google/sargo/";
-	listener_args->dsp = "adsp";
 
 	pthread_create(&listener_thread, NULL, start_reverse_tunnel, listener_args);
 	pthread_create(&chre_thread, NULL, start_chre_client, &fd);
