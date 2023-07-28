@@ -246,7 +246,9 @@ int main(int argc, char* argv[])
 			default:
 				printf("Usage: %s [-s] [-f FastRPC node]\n\n", argv[0]);
 				printf("Qualcomm Hexagon filesystem daemon\n\n"
+				       "\t-d\tDSP libraries subdirectory (default: adsp)\n"
 				       "\t-f\tFastRPC node to attach to\n"
+				       "\t-R\tDirectory of served files (default: /usr/share/qcom/)\n"
 				       "\t-s\tUse INIT_ATTACH_SNS instead of INIT_ATTACH ioctl\n");
 				return 1;
 		}
