@@ -245,9 +245,9 @@ int main(int argc, char* argv[])
 				break;
 			default:
 				printf("Usage: %s [-s] [-f FastRPC node]\n\n", argv[0]);
-				printf("Qualcomm Hexagon filesystem daemon\n\n");
-				printf("\t-f\tFastRPC node to attach to\n");
-				printf("\t-s\tUse INIT_ATTACH_SNS instead of INIT_ATTACH ioctl\n");
+				printf("Qualcomm Hexagon filesystem daemon\n\n"
+				       "\t-f\tFastRPC node to attach to\n"
+				       "\t-s\tUse INIT_ATTACH_SNS instead of INIT_ATTACH ioctl\n");
 				return 1;
 		}
 	}
