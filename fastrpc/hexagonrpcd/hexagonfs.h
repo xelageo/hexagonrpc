@@ -69,8 +69,6 @@ extern struct hexagonfs_file_ops hexagonfs_mapped_sysfs_ops;
 extern struct hexagonfs_file_ops hexagonfs_plat_subtype_name_ops;
 extern struct hexagonfs_file_ops hexagonfs_virt_dir_ops;
 
-extern struct hexagonfs_dirent hexagonfs_root_dir;
-
 int hexagonfs_open_root(struct hexagonfs_fd **fds, struct hexagonfs_dirent *root);
 int hexagonfs_openat(struct hexagonfs_fd **fds, int rootfd, int dirfd, const char *name);
 int hexagonfs_close(struct hexagonfs_fd **fds, int fileno);
