@@ -54,9 +54,9 @@ static uint32_t apps_std_fflush(void *data,
 				const struct fastrpc_io_buffer *inbufs,
 				struct fastrpc_io_buffer *outbufs)
 {
+#ifdef HEXAGONRPC_VERBOSE
 	uint32_t *fd = inbufs[0].p;
 
-#ifdef HEXAGONRPC_VERBOSE
 	printf("ignore fflush(%u)\n", *fd);
 #endif
 
@@ -155,12 +155,6 @@ static uint32_t apps_std_fopen_with_env(void *data,
 					struct fastrpc_io_buffer *outbufs)
 {
 	struct apps_std_ctx *ctx = data;
-	const struct {
-		uint32_t envvarname_len;
-		uint32_t delim_len;
-		uint32_t name_len;
-		uint32_t mode_len;
-	} *first_in = inbufs[0].p;
 	uint32_t *out = outbufs[0].p;
 	char rw_mode;
 	int dirfd, fd;
@@ -224,7 +218,6 @@ static uint32_t apps_std_opendir(void *data,
 				 struct fastrpc_io_buffer *outbufs)
 {
 	struct apps_std_ctx *ctx = data;
-	const uint32_t *namelen = inbufs[0].p;
 	uint64_t *dir_out = outbufs[0].p;
 	int ret;
 
@@ -310,10 +303,6 @@ static uint32_t apps_std_stat(void *data,
 {
 	struct apps_std_ctx *ctx = data;
 	char *pathname;
-	const struct {
-		uint32_t method;
-		uint32_t pathname_len;
-	} *first_in = inbufs[0].p;
 	struct {
 		uint64_t tsz; // Unknown purpose
 		uint64_t dev;
