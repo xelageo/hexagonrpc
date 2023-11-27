@@ -19,10 +19,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <dirent.h>
 #include <errno.h>
-#include <fcntl.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
