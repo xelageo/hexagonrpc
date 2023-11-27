@@ -1,7 +1,7 @@
 /*
  * FastRPC Example
  *
- * Copyright (C) 2023 Richard Acayan
+ * Copyright (C) 2023 The Sensor Shell Contributors
  *
  * This file is part of sensh.
  *

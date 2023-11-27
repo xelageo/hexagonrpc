@@ -1,7 +1,7 @@
 /*
  * HexagonFS operations for a missing sysfs file
  *
- * Copyright (C) 2023 Richard Acayan
+ * Copyright (C) 2023 The Sensor Shell Contributors
  *
  * This file is part of sensh.
  *
