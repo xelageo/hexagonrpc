@@ -120,7 +120,7 @@ or:
 The reverse tunnel calls the `adsp_listener_next2` remote method to receive
 method calls for the Application Processor.
 
-Interfaces are listed in the `fastrpc_listener_interfaces` variable.
+Interfaces are initialized in the `start_reverse_tunnel` function, in hexagonrpcd/rpcd.c.
 
 ## HexagonFS
 
