@@ -26,19 +26,27 @@ Making already-defined method calls is relatively straightforward, depending on
 the remote method that you're calling. You just need the function definition, an
 open file descriptor, the handle, and the arguments for it.
 
+    uint32_t prev_ctx, prev_result, nested_outbufs_len;
+    uint32_t ctx, nested_handle, nested_sc, nested_inbufs_len;
+    uint32_t nested_inbufs_size;
+    const void *nested_outbufs;
+    void *nested_inbufs;
+    int fd;
+
     ret = fastrpc2(&adsp_listener_next2_def, fd, ADSP_LISTENER_HANDLE,
     	       prev_ctx,
     	       prev_result,
     	       nested_outbufs_len, nested_outbufs,
-    	       ctx,
-    	       nested_handle,
-    	       nested_sc,
-    	       nested_inbufs_len,
+    	       &ctx,
+    	       &nested_handle,
+    	       &nested_sc,
+    	       &nested_inbufs_len,
     	       nested_inbufs_size, nested_inbufs);
 
-All inputs are specified before all outputs. Words in the first input and output
-buffers go in the form of `uint32_t` arguments. Each buffer is accepted as a
-`uint32_t` length and a pointer.
+All inputs are specified before all outputs. Words in the first (called "prim",
+or primary in QAIC-generated code) input and output buffers go in the form of
+`uint32_t` arguments. Each buffer is accepted as a `uint32_t` length and a
+pointer.
 
 ### Creating function definitions
 
