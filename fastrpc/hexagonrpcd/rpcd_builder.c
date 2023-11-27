@@ -88,6 +88,21 @@ static struct hexagonfs_dirent *hfs_map(const char *name, const char *path)
 	return file;
 }
 
+static struct hexagonfs_dirent *hfs_map_or_empty(const char *name, const char *path)
+{
+	struct hexagonfs_dirent *file;
+
+	file = malloc(sizeof(struct hexagonfs_dirent));
+	if (file == NULL)
+		return NULL;
+
+	file->name = name;
+	file->ops = &hexagonfs_mapped_or_empty_ops;
+	file->u.phys = path;
+
+	return file;
+}
+
 /*
  * Construct the root directory
  *
@@ -156,14 +171,14 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 			hfs_mkdir("usr", 1,
 				hfs_mkdir("lib", 1,
 					hfs_mkdir("qcom", 1,
-						hfs_map("adsp", dsp_libs)
+						hfs_map_or_empty("adsp", dsp_libs)
 					)
 				)
 			),
 			hfs_mkdir("vendor", 1,
 				hfs_mkdir("etc", 2,
 					hfs_mkdir("sensors", 2,
-						hfs_map("config", sns_cfg),
+						hfs_map_or_empty("config", sns_cfg),
 						hfs_map("sns_reg_config", sns_reg_config)
 					),
 					hfs_map("acdbdata", acdbdata)
