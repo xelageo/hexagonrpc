@@ -14,9 +14,11 @@ interface compiler or a free software alternative.
 
 ## Installation
 
-There is currently no build system.
+You can build and install this project using meson:
 
-    $ gcc -o libhexagonrpc.so -shared fastrpc.c context.c
+    ~/sensh/fastrpc $ meson setup build
+    ~/sensh/fastrpc $ ninja -C build
+    ~/sensh/fastrpc # ninja -C build install
 
 ## Usage
 
