@@ -55,8 +55,9 @@ first write a function definition for it. A function definition is a struct with
 information on its method ID and the arguments it accepts.
 
 First, the method ID is taken from the first argument of the
-`REMOTE_METHOD_MAKE()` macro or the second argument of the
-`REMOTE_METHOD_MAKEX()` macro.
+`REMOTE_SCALARS_MAKE()` macro or the second argument of the
+`REMOTE_SCALARS_MAKEX()` macro
+(defined [here](https://android.googlesource.com/platform/external/fastrpc/+/d6d6e3bba244e40e6043bd687f4cacf090a767b5/inc/remote.h#80)).
 
 Example:
 
