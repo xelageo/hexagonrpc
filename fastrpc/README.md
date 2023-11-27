@@ -139,10 +139,6 @@ Android firmware.
 
 # Future plans
 
-This directory is a bit messy. It should be organized into different
-subdirectories and have a build system. This should also be renamed to
-HexagonRPC to avoid a name collision.
-
 Reverse tunnels are separated by the process that opens the file descriptor and
 cannot service requests from other processes that do not share the same file
 descriptor. There should be some daemon that opens the device and allows clients
