@@ -64,6 +64,7 @@ struct hexagonfs_fd {
 };
 
 extern struct hexagonfs_file_ops hexagonfs_mapped_ops;
+extern struct hexagonfs_file_ops hexagonfs_mapped_or_empty_ops;
 extern struct hexagonfs_file_ops hexagonfs_mapped_sysfs_ops;
 extern struct hexagonfs_file_ops hexagonfs_plat_subtype_name_ops;
 extern struct hexagonfs_file_ops hexagonfs_virt_dir_ops;

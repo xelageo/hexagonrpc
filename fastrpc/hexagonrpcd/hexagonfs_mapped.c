@@ -215,6 +215,89 @@ static int mapped_stat(struct hexagonfs_fd *fd, struct stat *stats)
 	return 0;
 }
 
+static void mapped_or_empty_close(void *fd_data)
+{
+	if (fd_data)
+		mapped_close(fd_data);
+}
+
+static int mapped_or_empty_from_dirent(void *dirent_data, bool dir, void **fd_data)
+{
+	int ret;
+
+	ret = mapped_from_dirent(dirent_data, dir, fd_data);
+	if (ret)
+		fd_data = NULL;
+
+	return 0;
+}
+
+static int mapped_or_empty_openat(struct hexagonfs_fd *dir,
+				  const char *segment,
+				  bool expect_dir,
+				  struct hexagonfs_fd **out)
+{
+	if (dir->data)
+		return mapped_openat(dir, segment, expect_dir, out);
+	else
+		return -ENOENT;
+}
+
+static ssize_t mapped_or_empty_read(struct hexagonfs_fd *fd,
+				    size_t size, void *out)
+{
+	if (fd->data)
+		return mapped_read(fd, size, out);
+
+	return 0;
+}
+
+static int mapped_or_empty_readdir(struct hexagonfs_fd *fd,
+				   size_t size, char *out)
+{
+	if (fd->data) {
+		return mapped_readdir(fd, size, out);
+	} else {
+		out[0] = '\0';
+		return 0;
+	}
+}
+
+static int mapped_or_empty_seek(struct hexagonfs_fd *fd, off_t off, int whence)
+{
+	if (fd->data)
+		return mapped_seek(fd, off, whence);
+	else
+		return 0;
+}
+
+static int mapped_or_empty_stat(struct hexagonfs_fd *fd, struct stat *stats)
+{
+	if (fd->data) {
+		return mapped_stat(fd, stats);
+	} else {
+		stats->st_size = 0;
+		stats->st_dev = 0;
+		stats->st_rdev = 0;
+		stats->st_ino = 0;
+		stats->st_nlink = 0;
+
+		stats->st_mode = S_IFDIR
+			       | S_IRUSR | S_IXUSR
+			       | S_IRGRP | S_IXGRP
+			       | S_IROTH | S_IXOTH;
+
+		stats->st_atim.tv_sec = 0;
+		stats->st_atim.tv_nsec = 0;
+		stats->st_ctim.tv_sec = 0;
+		stats->st_ctim.tv_nsec = 0;
+		stats->st_mtim.tv_sec = 0;
+		stats->st_mtim.tv_nsec = 0;
+
+		return 0;
+	}
+}
+
 /*
  * This is the sysfs variant of the stat function.
  *
@@ -246,6 +329,16 @@ struct hexagonfs_file_ops hexagonfs_mapped_ops = {
 	.readdir = mapped_readdir,
 	.seek = mapped_seek,
 	.stat = mapped_stat,
+};
+
+struct hexagonfs_file_ops hexagonfs_mapped_or_empty_ops = {
+	.close = mapped_or_empty_close,
+	.from_dirent = mapped_or_empty_from_dirent,
+	.openat = mapped_or_empty_openat,
+	.read = mapped_or_empty_read,
+	.readdir = mapped_or_empty_readdir,
+	.seek = mapped_or_empty_seek,
+	.stat = mapped_or_empty_stat,
 };
 
 struct hexagonfs_file_ops hexagonfs_mapped_sysfs_ops = {
