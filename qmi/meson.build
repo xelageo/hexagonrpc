@@ -19,10 +19,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
-qmic = find_program('qmic')
+qmic = find_program('qmic', required : false)
 wrapper = files('qmic_wrapper.sh')
 
-qmi = custom_target('qmi_sns_client',
-  command : [wrapper, qmic, '@INPUT@', '@OUTDIR@'],
-  input : 'sns_client.qmi',
-  output : ['qmi_sns_client.c', 'qmi_sns_client.h'])
+if qmic.found()
+  qmi = custom_target('qmi_sns_client',
+    command : [wrapper, qmic, '@INPUT@', '@OUTDIR@'],
+    input : 'sns_client.qmi',
+    output : ['qmi_sns_client.c', 'qmi_sns_client.h'])
+else
+  qmi = custom_target('qmi_sns_client',
+    command : ['cp', '@INPUT@', '@OUTDIR@'],
+    input : ['qmi_sns_client.c', 'qmi_sns_client.h'],
+    output : ['qmi_sns_client.c', 'qmi_sns_client.h'])
+endif

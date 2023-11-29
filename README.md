@@ -12,7 +12,7 @@ which lines were entered by the user.
  - libqrtr
  - meson or make
  - protobuf-c
- - qmic (https://github.com/andersson/qmic)
+ - qmic (optional for regenerating QMI, at https://github.com/andersson/qmic)
 
 # Installation
 
