@@ -228,7 +228,7 @@ static int mapped_or_empty_from_dirent(void *dirent_data, bool dir, void **fd_da
 
 	ret = mapped_from_dirent(dirent_data, dir, fd_data);
 	if (ret)
-		fd_data = NULL;
+		*fd_data = NULL;
 
 	return 0;
 }
