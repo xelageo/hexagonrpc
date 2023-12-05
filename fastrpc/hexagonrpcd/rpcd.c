@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
 	listener_args = malloc(sizeof(struct listener_thread_args));
 	if (listener_args == NULL) {
 		perror("Could not create listener arguments");
-		goto err_close_dev;
+		return 1;
 	}
 
 	listener_args->device_dir = "/usr/share/qcom/";
