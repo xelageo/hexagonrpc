@@ -110,6 +110,7 @@ static int mapped_openat(struct hexagonfs_fd *dir,
 
 	ctx->dir = NULL;
 
+	fd->is_assigned = false;
 	fd->up = dir;
 	fd->ops = &hexagonfs_mapped_ops;
 	fd->data = ctx;

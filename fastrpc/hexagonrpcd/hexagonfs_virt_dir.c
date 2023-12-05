@@ -20,6 +20,7 @@
  */
 
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -69,6 +70,7 @@ static int virt_dir_openat(struct hexagonfs_fd *dir,
 	if (fd == NULL)
 		return -ENOMEM;
 
+	fd->is_assigned = false;
 	fd->up = dir;
 	fd->ops = ent->ops;
 
