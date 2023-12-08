@@ -1,5 +1,5 @@
 /*
- * FastRPC interface list for building method definitions
+ * FastRPC interface list for building common method definitions
  *
  * Copyright (C) 2023 The Sensor Shell Contributors
  *
@@ -21,7 +21,4 @@
 
 #define HEXAGONRPC_BUILD_METHOD_DEFINITIONS 1
 
-#include "interfaces/adsp_default_listener.def"
-#include "interfaces/apps_std.def"
-#include "interfaces/adsp_listener.def"
-#include "interfaces/chre_slpi.def"
+#include <libhexagonrpc/interfaces/remotectl.def>

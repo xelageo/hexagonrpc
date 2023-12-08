@@ -1,6 +1,7 @@
 libhexagonrpc = shared_library('hexagonrpc',
-  'fastrpc.c',
   'context.c',
+  'fastrpc.c',
+  'interfaces.c',
   include_directories : include,
   install : true
 )

@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <libhexagonrpc/fastrpc.h>
+#include <libhexagonrpc/interfaces/remotectl.def>
 #include <misc/fastrpc.h>
 #include <unistd.h>
 #include <pthread.h>
@@ -35,7 +36,6 @@
 #include "hexagonfs.h"
 #include "interfaces/adsp_default_listener.def"
 #include "interfaces/chre_slpi.def"
-#include "interfaces/remotectl.def"
 #include "listener.h"
 #include "localctl.h"
 #include "rpcd_builder.h"
