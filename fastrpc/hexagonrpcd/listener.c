@@ -73,6 +73,7 @@ static struct fastrpc_io_buffer *allocate_outbufs(const struct fastrpc_function_
 	off_t off;
 	uint32_t *sizes;
 
+	out_count = def->out_bufs + (def->out_nums && 1);
 	/*
 	 * POSIX allows malloc to return a non-NULL pointer to a zero-size area
 	 * in memory. Since the code below assumes non-zero size if the pointer
@@ -81,7 +82,6 @@ static struct fastrpc_io_buffer *allocate_outbufs(const struct fastrpc_function_
 	if (out_count == 0)
 		return NULL;
 
-	out_count = def->out_bufs + (def->out_nums && 1);
 	out = malloc(sizeof(struct fastrpc_io_buffer) * out_count);
 	if (out == NULL)
 		return NULL;
