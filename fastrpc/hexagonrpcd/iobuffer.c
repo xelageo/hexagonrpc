@@ -130,7 +130,7 @@ struct fastrpc_decoder_context *inbuf_decode_start(uint32_t sc)
 	ctx->align = 0;
 
 	ctx->inbufs = malloc(sizeof(*ctx->inbufs) * ctx->n_inbufs);
-	if (ctx->inbufs == NULL)
+	if (ctx->inbufs == NULL && ctx->n_inbufs != 0)
 		goto err;
 
 	return ctx;
