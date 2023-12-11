@@ -163,8 +163,9 @@ void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *s
 		if (!ctx->size || ctx->size_off) {
 			off += consume_size(ctx, len - off, &buf[off]);
 			try_populate_inbuf(ctx);
-		} else {
+		} else if (ctx->align && !ctx->buf_off) {
 			off += consume_alignment(ctx, len - off);
+		} else {
 			off += consume_buf(ctx, len - off, &buf[off]);
 		}
 	}
