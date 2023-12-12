@@ -34,7 +34,7 @@ static size_t consume_size(struct fastrpc_decoder_context *ctx,
 {
 	size_t segment;
 
-	segment = MIN(len, (size_t) 4 - ctx->size_off);
+	segment = MIN(len, 4 - ctx->size_off);
 	memcpy(&((char *) &ctx->size)[ctx->size_off], buf, segment);
 	ctx->size_off = (ctx->size_off + segment) % 4;
 	ctx->align = (ctx->align + segment) & 0x7;
@@ -55,7 +55,7 @@ static size_t consume_alignment(struct fastrpc_decoder_context *ctx, size_t len)
 	size_t segment = 0;
 
 	if (ctx->align) {
-		segment = MIN(len, (size_t) 8 - ctx->align);
+		segment = MIN(len, 8 - ctx->align);
 		ctx->align = (ctx->align + segment) & 0x7;
 	}
 

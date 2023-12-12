@@ -22,23 +22,25 @@
 #ifndef IOBUFFER_H
 #define IOBUFFER_H
 
+#include <stdint.h>
 #include <stddef.h>
 #include <sys/types.h>
 
 struct fastrpc_io_buffer {
-	size_t s;
+	uint32_t s;
 	void *p;
 };
 
 struct fastrpc_decoder_context {
 	struct fastrpc_io_buffer *inbufs;
-	int idx;
-	size_t size;
-	int n_inbufs;
+	unsigned int n_inbufs;
+	unsigned int idx;
 
-	off_t size_off;
-	off_t buf_off;
-	off_t align;
+	uint32_t size;
+	uint32_t buf_off;
+
+	unsigned int size_off;
+	unsigned int align;
 };
 
 void iobuf_free(size_t n_iobufs, struct fastrpc_io_buffer *iobufs);
