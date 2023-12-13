@@ -48,7 +48,7 @@ void iobuf_free(size_t n_iobufs, struct fastrpc_io_buffer *iobufs);
 struct fastrpc_decoder_context *inbuf_decode_start(uint32_t sc);
 struct fastrpc_io_buffer *inbuf_decode_finish(struct fastrpc_decoder_context *ctx);
 int inbuf_decode_is_complete(struct fastrpc_decoder_context *ctx);
-void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src);
+int inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src);
 
 size_t outbufs_calculate_size(size_t n_outbufs, const struct fastrpc_io_buffer *outbufs);
 void outbufs_encode(size_t n_outbufs, const struct fastrpc_io_buffer *outbufs,

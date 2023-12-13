@@ -42,12 +42,22 @@ static size_t consume_size(struct fastrpc_decoder_context *ctx,
 	return segment;
 }
 
-static void try_populate_inbuf(struct fastrpc_decoder_context *ctx)
+static int try_populate_inbuf(struct fastrpc_decoder_context *ctx)
 {
-	if (!ctx->size_off) {
-		ctx->inbufs[ctx->idx].s = ctx->size;
-		ctx->inbufs[ctx->idx].p = malloc(ctx->size);
-	}
+	void *buf;
+
+	// If we still need to process the size, don't do anything yet.
+	if (ctx->size_off)
+		return 0;
+
+	buf = malloc(ctx->size);
+	if (buf == NULL)
+		return -1;
+
+	ctx->inbufs[ctx->idx].s = ctx->size;
+	ctx->inbufs[ctx->idx].p = buf;
+
+	return 0;
 }
 
 static size_t consume_alignment(struct fastrpc_decoder_context *ctx, size_t len)
@@ -154,21 +164,27 @@ int inbuf_decode_is_complete(struct fastrpc_decoder_context *ctx)
 	return ctx->idx >= ctx->n_inbufs;
 }
 
-void inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src)
+int inbuf_decode(struct fastrpc_decoder_context *ctx, size_t len, const void *src)
 {
 	const char *buf = src;
 	size_t off = 0;
+	int ret = 0;
 
 	while (off < len && ctx->idx < ctx->n_inbufs) {
 		if (!ctx->size || ctx->size_off) {
 			off += consume_size(ctx, len - off, &buf[off]);
-			try_populate_inbuf(ctx);
+			ret = try_populate_inbuf(ctx);
 		} else if (ctx->align && !ctx->buf_off) {
 			off += consume_alignment(ctx, len - off);
 		} else {
 			off += consume_buf(ctx, len - off, &buf[off]);
 		}
+
+		if (ret == -1)
+			return ret;
 	}
+
+	return 0;
 }
 
 size_t outbufs_calculate_size(size_t n_outbufs, const struct fastrpc_io_buffer *outbufs)
