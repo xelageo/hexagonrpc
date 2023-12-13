@@ -191,12 +191,16 @@ static int return_for_next_invoke(int fd,
 
 	ctx = inbuf_decode_start(*sc);
 	if (!ctx) {
-		perror("Could not start decoding\n");
+		perror("Could not start decoding");
 		ret = -1;
 		goto err_free_outbufs;
 	}
 
-	inbuf_decode(ctx, inbufs_len, inbufs);
+	ret = inbuf_decode(ctx, inbufs_len, inbufs);
+	if (ret) {
+		perror("Could not decode");
+		goto err_free_outbufs;
+	}
 
 	if (!inbuf_decode_is_complete(ctx)) {
 		fprintf(stderr, "Expected more input buffers\n");
