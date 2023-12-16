@@ -25,7 +25,6 @@
 #include <libhexagonrpc/interfaces/remotectl.def>
 #include <misc/fastrpc.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -37,16 +36,9 @@
 #include "apps_std.h"
 #include "hexagonfs.h"
 #include "interfaces/adsp_default_listener.def"
-#include "interfaces/chre_slpi.def"
 #include "listener.h"
 #include "localctl.h"
 #include "rpcd_builder.h"
-
-struct listener_thread_args {
-	int fd;
-	char *device_dir;
-	char *dsp;
-};
 
 static int remotectl_open(int fd, char *name, struct fastrpc_context **ctx, void (*err_cb)(const char *err))
 {
@@ -108,16 +100,6 @@ static int remotectl_close(struct fastrpc_context *ctx, void (*err_cb)(const cha
 static int adsp_default_listener_register(struct fastrpc_context *ctx)
 {
 	return fastrpc(&adsp_default_listener_register_def, ctx);
-}
-
-static int chre_slpi_start_thread(struct fastrpc_context *ctx)
-{
-	return fastrpc(&chre_slpi_start_thread_def, ctx);
-}
-
-static int chre_slpi_wait_on_thread_exit(struct fastrpc_context *ctx)
-{
-	return fastrpc(&chre_slpi_wait_on_thread_exit_def, ctx);
 }
 
 static void remotectl_err(const char *err)
@@ -210,9 +192,8 @@ static int start_clients(size_t n_progs, const char **progs, pid_t *pids)
 	return 0;
 }
 
-static void *start_reverse_tunnel(void *data)
+static void *start_reverse_tunnel(int fd, const char *device_dir, const char *dsp)
 {
-	struct listener_thread_args *args = data;
 	struct fastrpc_interface **ifaces;
 	struct hexagonfs_dirent *root_dir;
 	size_t n_ifaces = 2;
@@ -222,7 +203,7 @@ static void *start_reverse_tunnel(void *data)
 	if (ifaces == NULL)
 		return NULL;
 
-	root_dir = construct_root_dir(args->device_dir, args->dsp);
+	root_dir = construct_root_dir(device_dir, dsp);
 
 	/*
 	 * The apps_remotectl interface patiently waits for this function to
@@ -234,11 +215,11 @@ static void *start_reverse_tunnel(void *data)
 	// Dynamic interfaces with no hardcoded handle
 	ifaces[1] = fastrpc_apps_std_init(root_dir);
 
-	ret = register_fastrpc_listener(args->fd);
+	ret = register_fastrpc_listener(fd);
 	if (ret)
 		goto err;
 
-	run_fastrpc_listener(args->fd, n_ifaces, ifaces);
+	run_fastrpc_listener(fd, n_ifaces, ifaces);
 
 	fastrpc_localctl_deinit(ifaces[REMOTECTL_HANDLE]);
 
@@ -252,52 +233,16 @@ err:
 	return NULL;
 }
 
-static void *start_chre_client(void *data)
-{
-	struct fastrpc_context *ctx;
-	int *fd = data;
-	int ret;
-
-	ret = remotectl_open(*fd, "chre_slpi", &ctx, remotectl_err);
-	if (ret)
-		return NULL;
-
-	ret = chre_slpi_start_thread(ctx);
-	if (ret) {
-		fprintf(stderr, "Could not start CHRE\n");
-		goto err;
-	}
-
-	ret = chre_slpi_wait_on_thread_exit(ctx);
-	if (ret) {
-		fprintf(stderr, "Could not wait for CHRE thread\n");
-		goto err;
-	}
-
-err:
-	remotectl_close(ctx, remotectl_err);
-	return NULL;
-}
-
 int main(int argc, char* argv[])
 {
-	pthread_t chre_thread, listener_thread;
-	struct listener_thread_args *listener_args;
 	char *fastrpc_node = NULL;
+	const char *device_dir = "/usr/share/qcom/";
+	const char *dsp;
 	const char **progs;
 	pid_t *pids;
 	size_t n_progs = 0;
 	int fd, ret, opt;
 	bool attach_sns = false;
-
-	listener_args = malloc(sizeof(struct listener_thread_args));
-	if (listener_args == NULL) {
-		perror("Could not create listener arguments");
-		return 1;
-	}
-
-	listener_args->device_dir = "/usr/share/qcom/";
-	listener_args->dsp = "adsp";
 
 	progs = malloc(sizeof(const char *) * argc);
 	if (progs == NULL) {
@@ -314,7 +259,7 @@ int main(int argc, char* argv[])
 	while ((opt = getopt(argc, argv, "d:f:p:R:s")) != -1) {
 		switch (opt) {
 			case 'd':
-				listener_args->dsp = optarg;
+				dsp = optarg;
 				break;
 			case 'f':
 				fastrpc_node = optarg;
@@ -324,7 +269,7 @@ int main(int argc, char* argv[])
 				n_progs++;
 				break;
 			case 'R':
-				listener_args->device_dir = optarg;
+				device_dir = optarg;
 				break;
 			case 's':
 				attach_sns = true;
@@ -367,13 +312,7 @@ int main(int argc, char* argv[])
 	if (ret)
 		goto err_close_dev;
 
-	listener_args->fd = fd;
-
-	pthread_create(&listener_thread, NULL, start_reverse_tunnel, listener_args);
-	pthread_create(&chre_thread, NULL, start_chre_client, &fd);
-
-	pthread_join(listener_thread, NULL);
-	pthread_join(chre_thread, NULL);
+	start_reverse_tunnel(fd, device_dir, dsp);
 
 	terminate_clients(n_progs, pids);
 
