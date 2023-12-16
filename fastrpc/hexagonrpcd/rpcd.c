@@ -26,10 +26,12 @@
 #include <misc/fastrpc.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/ioctl.h>
+#include <sys/types.h>
 
 #include "aee_error.h"
 #include "apps_std.h"
@@ -150,8 +152,62 @@ static void print_usage(const char *argv0)
 	       "Options:\n"
 	       "\t-d DSP\t\tDSP name (default: adsp)\n"
 	       "\t-f DEVICE\tFastRPC device node to attach to\n"
+	       "\t-p PROGRAM\tRun client program with shared file descriptor\n"
 	       "\t-R DIR\t\tRoot directory of served files (default: /usr/share/qcom/)\n"
 	       "\t-s\t\tAttach to sensorspd\n");
+}
+
+static int setup_environment(int fd)
+{
+	char *buf;
+	int ret;
+
+	buf = malloc(256);
+	if (buf == NULL) {
+		perror("Could not format file descriptor");
+		return 1;
+	}
+
+	snprintf(buf, 256, "%d", fd);
+	buf[255] = '\0';
+
+	ret = setenv("HEXAGONRPC_FD", buf, 1);
+
+	free(buf);
+
+	return ret;
+}
+
+static int terminate_clients(size_t n_pids, const pid_t *pids)
+{
+	size_t i;
+
+	for (i = 0; i < n_pids; i++) {
+		kill(pids[i], SIGTERM);
+	}
+
+	return 0;
+}
+
+static int start_clients(size_t n_progs, const char **progs, pid_t *pids)
+{
+	size_t i;
+
+	for (i = 0; i < n_progs; i++) {
+		pids[i] = fork();
+		if (pids[i] == -1) {
+			perror("Could not fork process");
+			terminate_clients(i, pids);
+			return 1;
+		}
+
+		if (pids[i] == 0) {
+			execl("/usr/bin/env", "/usr/bin/env", progs[i], (const char *) NULL);
+			exit(1);
+		}
+	}
+
+	return 0;
 }
 
 static void *start_reverse_tunnel(void *data)
@@ -228,6 +284,9 @@ int main(int argc, char* argv[])
 	pthread_t chre_thread, listener_thread;
 	struct listener_thread_args *listener_args;
 	char *fastrpc_node = NULL;
+	const char **progs;
+	pid_t *pids;
+	size_t n_progs = 0;
 	int fd, ret, opt;
 	bool attach_sns = false;
 
@@ -240,13 +299,29 @@ int main(int argc, char* argv[])
 	listener_args->device_dir = "/usr/share/qcom/";
 	listener_args->dsp = "adsp";
 
-	while ((opt = getopt(argc, argv, "d:f:R:s")) != -1) {
+	progs = malloc(sizeof(const char *) * argc);
+	if (progs == NULL) {
+		perror("Could not list client programs");
+		return 1;
+	}
+
+	pids = malloc(sizeof(pid_t) * argc);
+	if (pids == NULL) {
+		perror("Could not list client PIDs");
+		goto err_free_progs;
+	}
+
+	while ((opt = getopt(argc, argv, "d:f:p:R:s")) != -1) {
 		switch (opt) {
 			case 'd':
 				listener_args->dsp = optarg;
 				break;
 			case 'f':
 				fastrpc_node = optarg;
+				break;
+			case 'p':
+				progs[n_progs] = optarg;
+				n_progs++;
 				break;
 			case 'R':
 				listener_args->device_dir = optarg;
@@ -256,13 +331,13 @@ int main(int argc, char* argv[])
 				break;
 			default:
 				print_usage(argv[0]);
-				return 1;
+				goto err_free_pids;
 		}
 	}
 
 	if (!fastrpc_node) {
 		print_usage(argv[0]);
-		return 2;
+		goto err_free_pids;
 	}
 
 	printf("Starting %s (%s) on %s\n", argv[0], attach_sns? "INIT_ATTACH_SNS": "INIT_ATTACH", fastrpc_node);
@@ -270,7 +345,7 @@ int main(int argc, char* argv[])
 	fd = open(fastrpc_node, O_RDWR);
 	if (fd < 0) {
 		fprintf(stderr, "Could not open FastRPC node (%s): %s\n", fastrpc_node, strerror(errno));
-		return 3;
+		goto err_free_pids;
 	}
 
 	if (attach_sns)
@@ -282,6 +357,16 @@ int main(int argc, char* argv[])
 		goto err_close_dev;
 	}
 
+	ret = setup_environment(fd);
+	if (ret) {
+		perror("Could not setup environment variables");
+		goto err_close_dev;
+	}
+
+	ret = start_clients(n_progs, progs, pids);
+	if (ret)
+		goto err_close_dev;
+
 	listener_args->fd = fd;
 
 	pthread_create(&listener_thread, NULL, start_reverse_tunnel, listener_args);
@@ -290,11 +375,19 @@ int main(int argc, char* argv[])
 	pthread_join(listener_thread, NULL);
 	pthread_join(chre_thread, NULL);
 
+	terminate_clients(n_progs, pids);
+
 	close(fd);
+	free(pids);
+	free(progs);
 
 	return 0;
 
 err_close_dev:
 	close(fd);
+err_free_pids:
+	free(pids);
+err_free_progs:
+	free(progs);
 	return 4;
 }
