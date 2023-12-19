@@ -30,15 +30,6 @@
 #include "iobuffer.h"
 #include "listener.h"
 
-const struct fastrpc_interface *fastrpc_listener_interfaces[] = {
-	[REMOTECTL_HANDLE] = &localctl_interface,
-
-	&apps_std_interface,
-};
-
-size_t fastrpc_listener_n_interfaces = sizeof(fastrpc_listener_interfaces)
-				     / sizeof(*fastrpc_listener_interfaces);
-
 static int adsp_listener_init2(int fd)
 {
 	return fastrpc2(&adsp_listener_init2_def, fd, ADSP_LISTENER_HANDLE);
