@@ -48,8 +48,7 @@ with your terminal emulator:
 You can send 3 messages: lookup, attr, and watch. The lookup command returns
 SUIDs for the passed data type. The attr command returns attributes for the
 sensor. Finally, the watch command tells the sensor core to send events from a
-sensor whenever the sensor's value changes. The watch command is only valid if
-the stream type is 1 or 2.
+sensor whenever the sensor's value changes.
 
 An EOF (normally Ctrl+D) is enough to exit the shell unless the sensor core
 died.
