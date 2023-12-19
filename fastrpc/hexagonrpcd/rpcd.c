@@ -143,6 +143,17 @@ err:
 	return ret;
 }
 
+static void print_usage(const char *argv0)
+{
+	printf("Usage: %s [options] -f DEVICE\n\n", argv0);
+	printf("Server for FastRPC remote procedure calls from Qualcomm DSPs\n\n"
+	       "Options:\n"
+	       "\t-d DSP\t\tDSP name (default: adsp)\n"
+	       "\t-f DEVICE\tFastRPC device node to attach to\n"
+	       "\t-R DIR\t\tRoot directory of served files (default: /usr/share/qcom/)\n"
+	       "\t-s\t\tAttach to sensorspd\n");
+}
+
 static void *start_reverse_tunnel(void *data)
 {
 	struct listener_thread_args *args = data;
@@ -244,18 +255,13 @@ int main(int argc, char* argv[])
 				attach_sns = true;
 				break;
 			default:
-				printf("Usage: %s [-s] [-f FastRPC node]\n\n", argv[0]);
-				printf("Qualcomm Hexagon filesystem daemon\n\n"
-				       "\t-d\tDSP libraries subdirectory (default: adsp)\n"
-				       "\t-f\tFastRPC node to attach to\n"
-				       "\t-R\tDirectory of served files (default: /usr/share/qcom/)\n"
-				       "\t-s\tUse INIT_ATTACH_SNS instead of INIT_ATTACH ioctl\n");
+				print_usage(argv[0]);
 				return 1;
 		}
 	}
 
 	if (!fastrpc_node) {
-		fprintf(stderr, "Invalid FastRPC node: %s\n", fastrpc_node);
+		print_usage(argv[0]);
 		return 2;
 	}
 
