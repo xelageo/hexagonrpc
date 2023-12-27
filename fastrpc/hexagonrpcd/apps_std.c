@@ -302,7 +302,6 @@ static uint32_t apps_std_stat(void *data,
 			      struct fastrpc_io_buffer *outbufs)
 {
 	struct apps_std_ctx *ctx = data;
-	char *pathname;
 	struct {
 		uint64_t tsz; // Unknown purpose
 		uint64_t dev;
@@ -318,12 +317,12 @@ static uint32_t apps_std_stat(void *data,
 		int64_t ctime;
 		int64_t ctimensec;
 	} *first_out = outbufs[0].p;
+	const char *pathname = inbufs[1].p;
 	struct stat stats;
 	int fd, ret;
 
-	pathname = malloc(inbufs[1].s + 1);
-	memcpy(pathname, inbufs[1].p, inbufs[1].s);
-	pathname[inbufs[1].s] = 0;
+	if (((const char *) inbufs[1].p)[inbufs[1].s - 1] != 0)
+		return AEE_EBADPARM;
 
 	if (ctx->rootfd < 0) {
 		fprintf(stderr, "Could not open virtual root directory: %s\n",
@@ -335,14 +334,14 @@ static uint32_t apps_std_stat(void *data,
 	if (fd < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
 				pathname, strerror(-fd));
-		goto err_free_pathname;
+		return AEE_EFAILED;
 	}
 
 	ret = hexagonfs_fstat(ctx->fds, fd, &stats);
 	if (ret) {
 		fprintf(stderr, "Could not stat %s: %s\n",
 				pathname, strerror(-fd));
-		goto err_free_pathname;
+		return AEE_EFAILED;
 	}
 
 	hexagonfs_close(ctx->fds, fd);
@@ -366,13 +365,7 @@ static uint32_t apps_std_stat(void *data,
 	first_out->ctime = (int64_t) stats.st_ctim.tv_nsec;
 	first_out->ctimensec = (int64_t) stats.st_ctim.tv_nsec;
 
-	free(pathname);
-
 	return 0;
-
-err_free_pathname:
-	free(pathname);
-	return AEE_EFAILED;
 }
 
 struct fastrpc_interface *fastrpc_apps_std_init(struct hexagonfs_dirent *root)
