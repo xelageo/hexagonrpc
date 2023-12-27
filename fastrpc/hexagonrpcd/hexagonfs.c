@@ -69,8 +69,11 @@ static struct hexagonfs_fd *pop_dir(struct hexagonfs_fd *dir,
 
 	if (dir != root && dir->up != NULL) {
 		up = dir->up;
-		dir->ops->close(dir->data);
-		free(dir);
+
+		if (!dir->is_assigned) {
+			dir->ops->close(dir->data);
+			free(dir);
+		}
 	} else {
 		up = dir;
 	}
