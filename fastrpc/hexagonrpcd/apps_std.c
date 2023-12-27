@@ -172,12 +172,6 @@ static uint32_t apps_std_fopen_with_env(void *data,
 		return AEE_EUNSUPPORTED;
 	}
 
-	if (ctx->rootfd < 0) {
-		fprintf(stderr, "Could not open virtual root directory: %s\n",
-				strerror(-ctx->rootfd));
-		return AEE_EFAILED;
-	}
-
 	if (!strcmp(inbufs[1].p, "ADSP_LIBRARY_PATH")) {
 		dirfd = ctx->adsp_library_dirfd;
 	} else if (!strcmp(inbufs[1].p, "ADSP_AVS_CFG_PATH")) {
@@ -224,12 +218,6 @@ static uint32_t apps_std_opendir(void *data,
 	// The name must be NULL-terminated
 	if (((const char *) inbufs[1].p)[inbufs[1].s - 1] != 0)
 		return AEE_EBADPARM;
-
-	if (ctx->rootfd < 0) {
-		fprintf(stderr, "Could not open virtual root directory: %s\n",
-				strerror(-ctx->rootfd));
-		return AEE_EFAILED;
-	}
 
 	ret = hexagonfs_openat(ctx->fds, ctx->rootfd, ctx->rootfd, inbufs[1].p);
 	if (ret < 0) {
@@ -324,12 +312,6 @@ static uint32_t apps_std_stat(void *data,
 	if (((const char *) inbufs[1].p)[inbufs[1].s - 1] != 0)
 		return AEE_EBADPARM;
 
-	if (ctx->rootfd < 0) {
-		fprintf(stderr, "Could not open virtual root directory: %s\n",
-				strerror(-ctx->rootfd));
-		return AEE_EFAILED;
-	}
-
 	fd = hexagonfs_openat(ctx->fds, ctx->rootfd, ctx->rootfd, pathname);
 	if (fd < 0) {
 		fprintf(stderr, "Could not open %s: %s\n",
@@ -379,28 +361,30 @@ struct fastrpc_interface *fastrpc_apps_std_init(struct hexagonfs_dirent *root)
 
 	ctx = calloc(1, sizeof(struct apps_std_ctx));
 	if (ctx == NULL)
-		goto err;
+		goto err_free_iface;
 
 	memcpy(iface, &apps_std_interface, sizeof(struct fastrpc_interface));
 
 	ctx->rootfd = hexagonfs_open_root(ctx->fds, root);
+	if (ctx->rootfd < 0)
+		goto err_free_ctx;
 
-	if (ctx->rootfd >= 0) {
-		ctx->adsp_avs_cfg_dirfd = hexagonfs_openat(ctx->fds,
-							   ctx->rootfd,
-							   ctx->rootfd,
-							   "/vendor/etc/acdbdata/");
-		ctx->adsp_library_dirfd = hexagonfs_openat(ctx->fds,
-							   ctx->rootfd,
-							   ctx->rootfd,
-							   "/usr/lib/qcom/adsp/");
-	}
+	ctx->adsp_avs_cfg_dirfd = hexagonfs_openat(ctx->fds,
+						   ctx->rootfd,
+						   ctx->rootfd,
+						   "/vendor/etc/acdbdata/");
+	ctx->adsp_library_dirfd = hexagonfs_openat(ctx->fds,
+						   ctx->rootfd,
+						   ctx->rootfd,
+						   "/usr/lib/qcom/adsp/");
 
 	iface->data = ctx;
 
 	return iface;
 
-err:
+err_free_ctx:
+	free(ctx);
+err_free_iface:
 	free(iface);
 
 	return NULL;
