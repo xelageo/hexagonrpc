@@ -242,4 +242,6 @@ int main(int argc, const char **argv)
 	ret = test_out_misaligned();
 	if (ret)
 		return ret;
+
+	return 0;
 }
