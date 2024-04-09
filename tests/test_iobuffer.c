@@ -24,7 +24,7 @@
 
 #include "../hexagonrpcd/iobuffer.h"
 
-static const char misaligned_iobufs[] = {
+static const unsigned char misaligned_iobufs[] = {
 	/* inbuf 0 (4 bytes misaligned) */
 	0x01, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00,
@@ -58,16 +58,16 @@ static const char misaligned_iobufs[] = {
 	':', 'D',
 };
 
-static char misaligned_decoded0[] = { 0x12, };
-static char misaligned_decoded1[] = {
+static unsigned char misaligned_decoded0[] = { 0x12, };
+static unsigned char misaligned_decoded1[] = {
 	0x02, 0x46, 0x8A, 0xCF, 0x13, 0x57, 0x9B, 0xDF, 0x04, 0x8C,
 };
-static char misaligned_decoded2[] = { 'A', 'B', 'C', };
-static char misaligned_decoded3[] = { 'F', 'a', 's', 't', };
-static char misaligned_decoded4[] = { 'S', 'l', 'o', 'w', '\0', };
-static char misaligned_decoded5[] = { 'f', 'a', 's', 't', 'e', 'r', };
-static char misaligned_decoded6[] = { 'F', 'a', 's', 't', 'R', 'P', 'C', };
-static char misaligned_decoded7[] = { ':', 'D', };
+static unsigned char misaligned_decoded2[] = { 'A', 'B', 'C', };
+static unsigned char misaligned_decoded3[] = { 'F', 'a', 's', 't', };
+static unsigned char misaligned_decoded4[] = { 'S', 'l', 'o', 'w', '\0', };
+static unsigned char misaligned_decoded5[] = { 'f', 'a', 's', 't', 'e', 'r', };
+static unsigned char misaligned_decoded6[] = { 'F', 'a', 's', 't', 'R', 'P', 'C', };
+static unsigned char misaligned_decoded7[] = { ':', 'D', };
 
 static const struct fastrpc_io_buffer misaligned_decoded[] = {
 	{ .s =  1, .p = misaligned_decoded0, },
