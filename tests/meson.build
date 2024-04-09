@@ -7,6 +7,7 @@ endif
 test_iobuffer = executable('test_iobuffer',
   'test_iobuffer.c',
   '../hexagonrpcd/iobuffer.c',
+  c_args : ['-Wall', '-Wextra', '-Wpedantic', '-Wno-unused-parameter'],
   include_directories : include,
 )
 
