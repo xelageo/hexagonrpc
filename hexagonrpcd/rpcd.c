@@ -237,7 +237,7 @@ int main(int argc, char* argv[])
 {
 	char *fastrpc_node = NULL;
 	const char *device_dir = "/usr/share/qcom/";
-	const char *dsp;
+	const char *dsp = "";
 	const char **progs;
 	pid_t *pids;
 	size_t n_progs = 0;
