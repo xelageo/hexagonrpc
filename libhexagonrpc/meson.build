@@ -3,6 +3,7 @@ libhexagonrpc = shared_library('hexagonrpc',
   'fastrpc.c',
   'interfaces.c',
   'session.c',
+  c_args : cflags,
   include_directories : include,
   install : true
 )
