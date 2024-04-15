@@ -41,7 +41,7 @@ static void plat_subtype_name_close(void *fd_data)
 		free(ctx->name);
 }
 
-static int plat_subtype_name_from_dirent(void *dirent_data,
+static int plat_subtype_name_from_dirent(const void *dirent_data,
 					 bool dir,
 					 void **fd_data)
 {
@@ -54,7 +54,7 @@ static int plat_subtype_name_from_dirent(void *dirent_data,
 	if (ctx == NULL)
 		return -ENOMEM;
 
-	ctx->fd = open((const char *) dirent_data, O_RDONLY);
+	ctx->fd = open(dirent_data, O_RDONLY);
 	if (ctx->fd == -1)
 		return -errno;
 

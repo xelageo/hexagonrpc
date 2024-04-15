@@ -47,7 +47,7 @@ static void mapped_close(void *fd_data)
 	free(ctx);
 }
 
-static int mapped_from_dirent(void *dirent_data, bool dir, void **fd_data)
+static int mapped_from_dirent(const void *dirent_data, bool dir, void **fd_data)
 {
 	struct mapped_ctx *ctx;
 	const char *name = dirent_data;
@@ -222,7 +222,7 @@ static void mapped_or_empty_close(void *fd_data)
 		mapped_close(fd_data);
 }
 
-static int mapped_or_empty_from_dirent(void *dirent_data, bool dir, void **fd_data)
+static int mapped_or_empty_from_dirent(const void *dirent_data, bool dir, void **fd_data)
 {
 	int ret;
 

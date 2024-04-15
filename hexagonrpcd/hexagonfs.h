@@ -33,7 +33,7 @@ struct hexagonfs_fd;
 
 struct hexagonfs_file_ops {
 	void (*close)(void *fd_data);
-	int (*from_dirent)(void *dirent_data, bool dir, void **fd_data);
+	int (*from_dirent)(const void *dirent_data, bool dir, void **fd_data);
 	int (*openat)(struct hexagonfs_fd *dir,
 		      const char *segment,
 		      bool expect_dir,

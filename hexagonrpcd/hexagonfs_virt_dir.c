@@ -31,10 +31,10 @@
  * This function searches for the relevant path segment in the path directory.
  * It is not optimized because it is dealing with small directories.
  */
-static struct hexagonfs_dirent *walk_dir(struct hexagonfs_dirent **dir,
+static const struct hexagonfs_dirent *walk_dir(const struct hexagonfs_dirent *const *dir,
 					 const char *segment)
 {
-	struct hexagonfs_dirent **curr = dir;
+	const struct hexagonfs_dirent *const *curr = dir;
 
 	while (*curr != NULL) {
 		if (!strcmp(segment, (*curr)->name))
@@ -46,9 +46,17 @@ static struct hexagonfs_dirent *walk_dir(struct hexagonfs_dirent **dir,
 	return *curr;
 }
 
-static int virt_dir_from_dirent(void *dirent_data, bool dir, void **fd_data)
+static int virt_dir_from_dirent(const void *dirent_data, bool dir, void **fd_data)
 {
-	*fd_data = dirent_data;
+	const struct hexagonfs_dirent *const **wrapper;
+
+	wrapper = malloc(sizeof(*wrapper));
+	if (wrapper == NULL)
+		return -ENOMEM;
+
+	*wrapper = dirent_data;
+	*fd_data = wrapper;
+
 	return 0;
 }
 
@@ -57,12 +65,12 @@ static int virt_dir_openat(struct hexagonfs_fd *dir,
 			   bool expect_dir,
 			   struct hexagonfs_fd **out)
 {
+	const struct hexagonfs_dirent *const **dirlist = dir->data;
+	const struct hexagonfs_dirent *ent;
 	struct hexagonfs_fd *fd;
-	struct hexagonfs_dirent *ent;
-	struct hexagonfs_dirent **dirlist = dir->data;
 	int ret;
 
-	ent = walk_dir(dirlist, segment);
+	ent = walk_dir(*dirlist, segment);
 	if (ent == NULL)
 		return -ENOENT;
 
@@ -89,6 +97,7 @@ err:
 
 static void virt_dir_close(void *fd_data)
 {
+	free(fd_data);
 }
 
 static int virt_dir_stat(struct hexagonfs_fd *fd, struct stat *stats)
