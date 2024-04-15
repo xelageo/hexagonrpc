@@ -132,7 +132,7 @@ static void print_usage(const char *argv0)
 	printf("Usage: %s [options] -f DEVICE\n\n", argv0);
 	printf("Server for FastRPC remote procedure calls from Qualcomm DSPs\n\n"
 	       "Options:\n"
-	       "\t-d DSP\t\tDSP name (default: adsp)\n"
+	       "\t-d DSP\t\tDSP name (default: "")\n"
 	       "\t-f DEVICE\tFastRPC device node to attach to\n"
 	       "\t-p PROGRAM\tRun client program with shared file descriptor\n"
 	       "\t-R DIR\t\tRoot directory of served files (default: /usr/share/qcom/)\n"
