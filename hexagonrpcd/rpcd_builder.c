@@ -31,6 +31,7 @@
 #define SENSORS_CONFIG		"/sensors/config/"
 #define SENSORS_REGISTRY	"/sensors/registry/"
 #define SNS_REG_CONFIG		"/sensors/sns_reg.conf"
+#define SYSFS_SOCINFO		"/socinfo/"
 
 static struct hexagonfs_dirent *hfs_mkdir(const char *name, size_t n_ents, ...)
 {
@@ -110,7 +111,7 @@ static struct hexagonfs_dirent *hfs_map_or_empty(const char *name, const char *p
  */
 struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 {
-	char *acdbdata, *dsp_libs, *sns_cfg, *sns_reg, *sns_reg_config;
+	char *acdbdata, *dsp_libs, *sns_cfg, *sns_reg, *sns_reg_config, *socinfo;
 	size_t n_prefix;
 	struct hexagonfs_dirent *persist_dir;
 
@@ -120,6 +121,7 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 	sns_cfg = malloc(n_prefix + strlen(SENSORS_CONFIG) + 1);
 	sns_reg = malloc(n_prefix + strlen(SENSORS_REGISTRY) + 1);
 	sns_reg_config = malloc(n_prefix + strlen(SNS_REG_CONFIG) + 1);
+	socinfo = malloc(n_prefix + strlen(SYSFS_SOCINFO) + 1);
 
 	dsp_libs = malloc(n_prefix + strlen(DSP_LIBS) + strlen(dsp) + 1);
 
@@ -143,6 +145,11 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 		strcat(sns_reg_config, SNS_REG_CONFIG);
 	}
 
+	if (socinfo != NULL) {
+		strcpy(socinfo, prefix);
+		strcat(socinfo, SYSFS_SOCINFO);
+	}
+
 	if (dsp_libs != NULL) {
 		strcpy(dsp_libs, prefix);
 		strcat(dsp_libs, DSP_LIBS);
@@ -161,13 +168,18 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 				)
 		      );
 
-	return hfs_mkdir("/", 4,
+	return hfs_mkdir("/", 5,
 			hfs_mkdir("mnt", 1,
 				hfs_mkdir("vendor", 1,
 					persist_dir
 				)
 			),
 			persist_dir,
+			hfs_mkdir("sys", 1,
+				hfs_mkdir("devices", 1,
+					hfs_map_or_empty("soc0", socinfo)
+				)
+			),
 			hfs_mkdir("usr", 1,
 				hfs_mkdir("lib", 1,
 					hfs_mkdir("qcom", 1,
