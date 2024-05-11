@@ -113,7 +113,7 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 {
 	char *acdbdata, *dsp_libs, *sns_cfg, *sns_reg, *sns_reg_config, *socinfo;
 	size_t n_prefix;
-	struct hexagonfs_dirent *persist_dir;
+	struct hexagonfs_dirent *persist_dir, *vendor_dir;
 
 	n_prefix = strlen(prefix);
 
@@ -168,7 +168,21 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 				)
 		      );
 
-	return hfs_mkdir("/", 5,
+	/*
+	 * Some platforms need vendor in / and some need it in /system. Form
+	 * a hard link between both locations.
+	 */
+	vendor_dir = hfs_mkdir("vendor", 1,
+				hfs_mkdir("etc", 2,
+					hfs_mkdir("sensors", 2,
+						hfs_map_or_empty("config", sns_cfg),
+						hfs_map("sns_reg_config", sns_reg_config)
+					),
+					hfs_map("acdbdata", acdbdata)
+				)
+			);
+
+	return hfs_mkdir("/", 6,
 			hfs_mkdir("mnt", 1,
 				hfs_mkdir("vendor", 1,
 					persist_dir
@@ -180,6 +194,9 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 					hfs_map_or_empty("soc0", socinfo)
 				)
 			),
+			hfs_mkdir("system", 1,
+				vendor_dir
+			),
 			hfs_mkdir("usr", 1,
 				hfs_mkdir("lib", 1,
 					hfs_mkdir("qcom", 1,
@@ -187,14 +204,6 @@ struct hexagonfs_dirent *construct_root_dir(const char *prefix, const char *dsp)
 					)
 				)
 			),
-			hfs_mkdir("vendor", 1,
-				hfs_mkdir("etc", 2,
-					hfs_mkdir("sensors", 2,
-						hfs_map_or_empty("config", sns_cfg),
-						hfs_map("sns_reg_config", sns_reg_config)
-					),
-					hfs_map("acdbdata", acdbdata)
-				)
-			)
+			vendor_dir
 		);
 }
