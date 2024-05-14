@@ -133,6 +133,7 @@ These files are searched for in:
     /usr/share/qcom/sensors/config		/vendor/etc/sensors/config
     /usr/share/qcom/sensors/registry	/mnt/vendor/persist/sensors/registry/registry
     /usr/share/qcom/sensors/sns_reg.conf	/vendor/etc/sensors/sns_reg_config
+    /usr/share/qcom/socinfo			/sys/devices/soc0
 
 These files and directories should be populated with files from your device's
 Android firmware.
