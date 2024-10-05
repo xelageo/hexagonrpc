@@ -1,5 +1,7 @@
 project('fastrpc', 'c')
 
+version = '0.3.2'
+
 include = include_directories('include')
 client_target = get_option('libexecdir') / 'hexagonrpc'
 
