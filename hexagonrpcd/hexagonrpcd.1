@@ -3,22 +3,22 @@
 .SH NAME
 hexagonrpcd - Server for FastRPC remote procedure calls from Qualcomm DSPs
 .SH SYNOPSIS
-\fBhexagonrpcd\fP [\fIparameters\&.\&.\&.\fP]
+\fBhexagonrpcd\fP [\fIoptions\&.\&.\&.\fP] -f \fIDEVICE
 .SH DESCRIPTION
 Server for FastRPC remote procedure calls from Qualcomm DSPs\&.
 .PP
-.SH PARAMETERS
+.SH OPTIONS
 .TP
-\fB\-d DSP\fP
+\fB\-d \fIDSP\fP
 DSP name (default: )
 .TP
-\fB\-f DEV\fP
+\fB\-f \fIDEVICE\fP
 FastRPC device node to attach to
 .TP
-\fB\-p program\fP
+\fB\-p \fIPROGRAM\fP
 Run client program with shared file descriptor
 .TP
-\fB\-R DIR\fP
+\fB\-R \fIDIR\fP
 Root directory of served files (default: /usr/share/qcom/)
 .TP
 \fB\-s\fP
@@ -28,17 +28,18 @@ Attach to sensorspd
 
 Hexagonrpcd serves files to the remote processor via a reverse tunnel interface
 to the remote processor. These files are by default searched for in:
+
 .TS
 l l
 ---
-l ll. 
-Physical file/dir       Android file/dir
-/usr/share/qcom/acdb    /vendor/etc/acdbdata
-/usr/share/qcom/dsp     /vendor/dsp
-/usr/share/qcom/sensors/config  /vendor/etc/sensors/config
+l l. 
+Physical file/dir                       Android file/dir
+/usr/share/qcom/acdb                    /vendor/etc/acdbdata
+/usr/share/qcom/dsp                     /vendor/dsp
+/usr/share/qcom/sensors/config          /vendor/etc/sensors/config
 /usr/share/qcom/sensors/registry        /mnt/vendor/persist/sensors/registry/registry
 /usr/share/qcom/sensors/sns_reg.conf    /vendor/etc/sensors/sns_reg_config
-/usr/share/qcom/socinfo /sys/devices/soc0
+/usr/share/qcom/socinfo                 /sys/devices/soc0
 .TE
 
 These files and directories should be populated with files from your device's
